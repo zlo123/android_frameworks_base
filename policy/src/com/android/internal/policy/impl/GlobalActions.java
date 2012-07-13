@@ -54,6 +54,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,6 +99,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mHasVibrator;
 
     private IWindowManager mIWindowManager;
+
+private static int rebootIndex = 0;
 
     /**
      * @param context everything needs a context :(
@@ -238,7 +241,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mItems.add(
             new SinglePressAction(com.android.internal.R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
                 public void onPress() {
-                    ShutdownThread.reboot(mContext, "null", true);
+              mWindowManagerFuncs.reboot();
                 }
 
                 public boolean showDuringKeyguard() {
