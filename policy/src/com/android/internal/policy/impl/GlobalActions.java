@@ -100,7 +100,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private IWindowManager mIWindowManager;
 
-private static int rebootIndex = 0;
+    private static int rebootIndex = 0;
 
     /**
      * @param context everything needs a context :(
@@ -241,9 +241,9 @@ private static int rebootIndex = 0;
         mItems.add(
             new SinglePressAction(com.android.internal.R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
                 public void onPress() {
-              mWindowManagerFuncs.reboot();
+                    rebootDialog().show();
                 }
-
+                
                 public boolean showDuringKeyguard() {
                     return true;
                 }
@@ -943,5 +943,39 @@ private static int rebootIndex = 0;
             mIWindowManager = IWindowManager.Stub.asInterface(b);
         }
         return mIWindowManager;
+    }
+
+    private AlertDialog rebootDialog() {
+        final String[] rebootOptions = mContext.getResources().getStringArray(R.array.shutdown_reboot_options);
+        final String[] rebootReasons = mContext.getResources().getStringArray(R.array.shutdown_reboot_actions);
+
+        AlertDialog d = new AlertDialog.Builder(mContext)
+                .setSingleChoiceItems(rebootOptions, 0,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                rebootIndex = which;
+                            }
+                        })
+                .setNegativeButton(android.R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                .setPositiveButton(R.string.reboot_system, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mWindowManagerFuncs.reboot(rebootReasons[rebootIndex]);
+                    }
+                }).create();
+
+        d.getListView().setItemsCanFocus(true);
+        d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
+
+        return d;
     }
 }

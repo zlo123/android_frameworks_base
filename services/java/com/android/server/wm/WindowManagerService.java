@@ -5153,9 +5153,16 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     @Override
-    public void reboot(String reason) {
+    public void reboot() {
+        String reason = "reboot";
         ShutdownThread.reboot(mContext, reason, false);
     }
+    
+    @Override
+    public void reboot(String reason) {
+        ShutdownThread.reboot(mContext,reason, false);
+    }
+
     // Called by window manager policy.  Not exposed externally.
     @Override
     public void rebootSafeMode() {

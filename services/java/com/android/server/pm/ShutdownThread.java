@@ -104,6 +104,8 @@ public final class ShutdownThread extends Thread {
     }
 
     static void shutdownInner(final Context context, boolean confirm) {
+        
+        final AlertDialog dialog;
         // ensure that only one thread is trying to power down.
         // any additional calls are just returned
         synchronized (sIsStartedGuard) {
@@ -126,7 +128,7 @@ public final class ShutdownThread extends Thread {
         if (confirm) {
               // Set different dialog message based on whether or not we're rebooting
             if (mReboot) {
-                dialog = new AlertDialog.Builder(context)
+                     dialog = new AlertDialog.Builder(context)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(com.android.internal.R.string.reboot_system)
                         .setSingleChoiceItems(com.android.internal.R.array.shutdown_reboot_options, 0, new DialogInterface.OnClickListener() {

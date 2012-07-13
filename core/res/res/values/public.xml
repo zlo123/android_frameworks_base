@@ -1336,7 +1336,8 @@
   <java-symbol type="string" name="global_action_toggle_silent_mode" />
   <java-symbol type="string" name="global_action_reboot" />
   <java-symbol type="string" name="global_action_screenshot" />
-<java-symbol type="string" name="reboot_progress" />
+  <java-symbol type="string" name="reboot_progress" />
+  <java-symbol type="string" name="reboot_system" />
   <java-symbol type="string" name="invalidPuk" />
   <java-symbol type="string" name="keyguard_password_enter_pin_code" />
   <java-symbol type="string" name="keyguard_password_enter_puk_code" />
