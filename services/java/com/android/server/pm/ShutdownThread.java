@@ -41,13 +41,13 @@ import android.os.Vibrator;
 import android.os.SystemVibrator;
 import android.os.storage.IMountService;
 import android.os.storage.IMountShutdownObserver;
-import android.view.KeyEvent;
 
 import com.android.internal.telephony.ITelephony;
 import com.android.server.PowerManagerService;
 
 import android.util.Log;
 import android.view.WindowManager;
+import android.view.KeyEvent;
 
 public final class ShutdownThread extends Thread {
     // constants
@@ -104,8 +104,6 @@ public final class ShutdownThread extends Thread {
     }
 
     static void shutdownInner(final Context context, boolean confirm) {
-        
-        final AlertDialog dialog;
         // ensure that only one thread is trying to power down.
         // any additional calls are just returned
         synchronized (sIsStartedGuard) {
@@ -126,9 +124,10 @@ public final class ShutdownThread extends Thread {
         Log.d(TAG, "Notifying thread to start shutdown longPressBehavior=" + longPressBehavior);
 
         if (confirm) {
-              // Set different dialog message based on whether or not we're rebooting
-            if (mReboot) {
-                     dialog = new AlertDialog.Builder(context)
+            final CloseDialogReceiver closer = new CloseDialogReceiver(context);
+            final AlertDialog dialog;
+            if (mReboot && !mRebootSafeMode){
+                dialog = new AlertDialog.Builder(context)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle(com.android.internal.R.string.reboot_system)
                         .setSingleChoiceItems(com.android.internal.R.array.shutdown_reboot_options, 0, new DialogInterface.OnClickListener() {
@@ -164,14 +163,12 @@ public final class ShutdownThread extends Thread {
                                 return true;
                             }
                         });
-                // Initialize to the first reason
-                String actions[] = context.getResources().getStringArray(com.android.internal.R.array.shutdown_reboot_actions);
-                mRebootReason = actions[0];
             } else {
                 dialog = new AlertDialog.Builder(context)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTitle(com.android.internal.R.string.power_off)
-                        .setMessage(com.android.internal.R.string.shutdown_confirm)
+                        .setTitle(mRebootSafeMode
+                                ? com.android.internal.R.string.reboot_safemode_title
+                                : com.android.internal.R.string.power_off)
+                        .setMessage(resourceId)
                         .setPositiveButton(com.android.internal.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 beginShutdownSequence(context);
@@ -180,8 +177,12 @@ public final class ShutdownThread extends Thread {
                         .setNegativeButton(com.android.internal.R.string.no, null)
                         .create();
             }
+
+            closer.dialog = dialog;
+            dialog.setOnDismissListener(closer);
             dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
             dialog.show();
+
         } else {
             beginShutdownSequence(context);
         }
@@ -250,7 +251,7 @@ public final class ShutdownThread extends Thread {
         // throw up an indeterminate system dialog to indicate radio is
         // shutting down.
         ProgressDialog pd = new ProgressDialog(context);
-         if (mReboot) {
+        if (mReboot) {
             pd.setTitle(context.getText(com.android.internal.R.string.reboot_system));
             pd.setMessage(context.getText(com.android.internal.R.string.reboot_progress));
         } else {
@@ -336,12 +337,12 @@ public final class ShutdownThread extends Thread {
         }
 
         Log.i(TAG, "Sending shutdown broadcast...");
-        
+
         // First send the high-level shut down broadcast.
         mActionDone = false;
         mContext.sendOrderedBroadcast(new Intent(Intent.ACTION_SHUTDOWN), null,
                 br, mHandler, 0, null, null);
-        
+
         final long endTime = SystemClock.elapsedRealtime() + MAX_BROADCAST_TIME;
         synchronized (mActionDoneSync) {
             while (!mActionDone) {
@@ -356,9 +357,9 @@ public final class ShutdownThread extends Thread {
                 }
             }
         }
-        
+
         Log.i(TAG, "Shutting down activity manager...");
-        
+
         final IActivityManager am =
             ActivityManagerNative.asInterface(ServiceManager.checkService("activity"));
         if (am != null) {
