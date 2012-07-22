@@ -45,10 +45,11 @@ public class CdmaLteServiceStateTracker extends CdmaServiceStateTracker {
 
     private ServiceState  mLteSS;  // The last LTE state from Voice Registration
 
+    private boolean getSVDO = SystemProperties.getBoolean(TelephonyProperties.PROPERTY_SVDATA, false);
+
     public CdmaLteServiceStateTracker(CDMALTEPhone phone) {
         super(phone);
         mCdmaLtePhone = phone;
-
         mLteSS = new ServiceState();
         if (DBG) log("CdmaLteServiceStateTracker Constructors");
     }
@@ -494,7 +495,7 @@ public class CdmaLteServiceStateTracker extends CdmaServiceStateTracker {
     public boolean isConcurrentVoiceAndDataAllowed() {
         if (mLteSS.getRadioTechnology() !=
                     ServiceState.RIL_RADIO_TECHNOLOGY_1xRTT)
-            return SystemProperties.getBoolean(TelephonyProperties.PROPERTY_SVDATA, false);
+            return getSVDO;
         else
             return (mLteSS.getCssIndicator() == 1);
     }
