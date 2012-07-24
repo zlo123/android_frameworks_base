@@ -1896,7 +1896,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
         if (RILJ_LOGD) riljLog("setCurrentPreferredNetworkType: " + mSetPreferredNetworkType);
         setPreferredNetworkType(mSetPreferredNetworkType, null);
     }
-    private int mSetPreferredNetworkType;
+    protected int mSetPreferredNetworkType;
 
     /**
      * {@inheritDoc}
@@ -2223,7 +2223,6 @@ public class RIL extends BaseCommands implements CommandsInterface {
     protected void
     processSolicited (Parcel p) {
         int serial, error;
-        boolean found = false;
 
         serial = p.readInt();
         error = p.readInt();
@@ -3647,7 +3646,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
             case RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU: return "RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU";
             case RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS: return "RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS";
             case RIL_REQUEST_VOICE_RADIO_TECH: return "RIL_REQUEST_VOICE_RADIO_TECH";
-            default: return "<unknown request>";
+            default: return "<unknown request: "+request+">";
         }
     }
 
@@ -3696,7 +3695,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
             case RIL_UNSOL_EXIT_EMERGENCY_CALLBACK_MODE: return "UNSOL_EXIT_EMERGENCY_CALLBACK_MODE";
             case RIL_UNSOL_RIL_CONNECTED: return "UNSOL_RIL_CONNECTED";
             case RIL_UNSOL_VOICE_RADIO_TECH_CHANGED: return "UNSOL_VOICE_RADIO_TECH_CHANGED";
-            default: return "<unknown reponse>";
+            default: return "<unknown response: "+request+">";
         }
     }
 
