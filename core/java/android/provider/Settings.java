@@ -2329,6 +2329,13 @@ public final class Settings {
         public static final String EXPANDED_HIDE_SCROLLBAR = "expanded_hide_scrollbar";
 
         /**
+         * Hide indicator in status bar widget
+         *
+         * @hide
+         */
+        public static final String EXPANDED_HIDE_INDICATOR = "expanded_hide_indicator";
+
+        /**
          * Haptic feedback in power widget
          *
          * @hide
