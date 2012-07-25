@@ -46,6 +46,9 @@ public class MechaQualcommRIL extends QualcommSharedRIL implements CommandsInter
 
     protected String mAid = "";
     protected IccHandler mIccHandler;
+    private final int RIL_INT_RADIO_OFF = 0;
+    private final int RIL_INT_RADIO_NA = 1;
+    private final int RIL_INT_RADIO_ON = 2;
 
     public MechaQualcommRIL(Context context, int networkMode, int cdmaSubscription) {
         super(context, networkMode, cdmaSubscription);
@@ -102,6 +105,84 @@ public class MechaQualcommRIL extends QualcommSharedRIL implements CommandsInter
         return status;
     }
 
+    @Override
+    protected Object
+    responseSignalStrength(Parcel p) {
+        int numInts = 14;
+        int response[];
+
+        /* HTC signal strength format:
+         * 0: GW_SignalStrength
+         * 1: GW_SignalStrength.bitErrorRate
+         * 2: CDMA_SignalStrength.dbm
+         * 3: CDMA_SignalStrength.ecio
+         * 4: EVDO_SignalStrength.dbm
+         * 5: EVDO_SignalStrength.ecio
+         * 6: EVDO_SignalStrength.signalNoiseRatio
+         * 7: ATT_SignalStrength.dbm
+         * 8: ATT_SignalStrength.ecno
+         * 9: LTE_SignalStrength.signalStrength
+         * 10: LTE_SignalStrength.rsrp
+         * 11: LTE_SignalStrength.rsrq
+         * 12: LTE_SignalStrength.rssnr
+         * 13: LTE_SignalStrength.cqi
+         */
+        response = new int[numInts];
+        for (int i = 0; i < numInts; i++) {
+            if (i > 8) {
+                response[i-2] = p.readInt();
+                response[i] = -1;
+            } else {
+                response[i] = p.readInt();
+            }
+        }
+
+        return response;
+    }
+
+    @Override
+    protected void
+    processUnsolicited (Parcel p) {
+        Object ret;
+        int dataPosition = p.dataPosition(); // save off position within the Parcel
+        int response = p.readInt();
+
+        switch(response) {
+            case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED: ret =  responseVoid(p); break;
+            case 1035: ret = responseVoid(p); break; // RIL_UNSOL_VOICE_RADIO_TECH_CHANGED
+            case 1036: ret = responseVoid(p); break; // RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED
+            case 1037: ret = responseVoid(p); break; // RIL_UNSOL_EXIT_EMERGENCY_CALLBACK_MODE
+            case 1038: ret = responseVoid(p); break; // RIL_UNSOL_DATA_NETWORK_STATE_CHANGED
+            default:
+                // Rewind the Parcel
+                p.setDataPosition(dataPosition);
+
+                // Forward responses that we are not overriding to the super class
+                super.processUnsolicited(p);
+                return;
+        }
+
+        switch(response) {
+            case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED:
+                int state = p.readInt();
+                setRadioStateFromRILInt(state);
+                break;
+            case 1035:
+            case 1036:
+                break;
+            case 1037: // RIL_UNSOL_EXIT_EMERGENCY_CALLBACK_MODE
+                if (RILJ_LOGD) unsljLogRet(response, ret);
+
+                if (mExitEmergencyCallbackModeRegistrants != null) {
+                    mExitEmergencyCallbackModeRegistrants.notifyRegistrants(
+                                        new AsyncResult (null, null, null));
+                }
+                break;
+            case 1038:
+                break;
+        }
+    }
+
     private void setRadioStateFromRILInt (int stateCode) {
         CommandsInterface.RadioState radioState;
         HandlerThread handlerThread;
@@ -109,17 +190,17 @@ public class MechaQualcommRIL extends QualcommSharedRIL implements CommandsInter
         Looper looper;
 
         switch (stateCode) {
-            case 0:
+            case RIL_INT_RADIO_OFF:
                 radioState = CommandsInterface.RadioState.RADIO_OFF;
                 if (mIccHandler != null) {
                     mIccThread = null;
                     mIccHandler = null;
                 }
                 break;
-            case 1:
+            case RIL_INT_RADIO_NA:
                 radioState = CommandsInterface.RadioState.RADIO_UNAVAILABLE;
                 break;
-            case 2:
+            case RIL_INT_RADIO_ON:
                 if (mIccHandler == null) {
                     handlerThread = new HandlerThread("IccHandler");
                     mIccThread = handlerThread;
