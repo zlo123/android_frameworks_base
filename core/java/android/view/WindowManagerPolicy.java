@@ -395,7 +395,6 @@ public interface WindowManagerPolicy {
         public void reboot();
         public void reboot(String reason);
         public void rebootSafeMode();
-        public void reboot();
     }
 
     /**
