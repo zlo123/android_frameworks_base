@@ -224,7 +224,7 @@ public class Clock extends TextView {
 
         String result = sdf.format(mCalendar.getTime());
 
-        if (mWeekday != WEEKDAY_STYLE_DONE) {
+        if (mWeekday != WEEKDAY_STYLE_GONE) {
             todayIs = whatDay(day);
             result = todayIs + result;
         }
@@ -256,7 +256,7 @@ public class Clock extends TextView {
                 } else {
                     if (mWeekday == WEEKDAY_STYLE_SMALL) {
                         CharacterStyle style = new RelativeSizeSpan(0.7f);
-                        formatted.setSpan(style, 0, 4, Spannable.SPAN_EXECLUSIVE_INCLUSIVE);
+                        formatted.setSpan(style, 0, 4, Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
                     }
                 }
             }
