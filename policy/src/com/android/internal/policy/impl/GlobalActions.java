@@ -243,12 +243,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mItems.add(
             new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
                 public void onPress() {
-                    mWindowManagerFuncs.reboot();
-                }
-
-                public boolean onLongPress() {
-                    mWindowManagerFuncs.rebootSafeMode();
-                    return true;
+                    rebootDialog().show();
                 }
 
                 public boolean showDuringKeyguard() {
