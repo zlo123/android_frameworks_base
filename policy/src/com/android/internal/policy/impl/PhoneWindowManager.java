@@ -62,7 +62,6 @@ import android.os.UEventObserver;
 import android.os.Vibrator;
 import android.provider.Settings;
 
-import com.android.server.wm;
 import com.android.internal.R;
 import com.android.internal.os.DeviceKeyHandler;
 import com.android.internal.policy.PolicyManager;
