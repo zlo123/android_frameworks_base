@@ -62,6 +62,7 @@ import android.os.UEventObserver;
 import android.os.Vibrator;
 import android.provider.Settings;
 
+import com.android.server.wm
 import com.android.internal.R;
 import com.android.internal.os.DeviceKeyHandler;
 import com.android.internal.policy.PolicyManager;
@@ -1311,7 +1312,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             1) == 1;
             if (mHasNavigationBar != hasNavBarChanged) {
                 mHasNavigationBar = hasNavBarChanged;
-                setInitialDisplaySize(mUnrestrictedScreenWidth, mUnrestrictedScreenHeight);
+                WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+                Display mDisplay = wm.getDefaultDisplay();
+                setInitialDisplaySize(mDisplay, mUnrestrictedScreenWidth, mUnrestrictedScreenHeight);
             }
 
             // dreams
