@@ -787,11 +787,11 @@ public class NavigationBarView extends LinearLayout {
                 Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_HEIGHT), false,
                 this);
 
-            resolver.registerContentObserver(
+            resolve.registerContentObserver(
                 Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_WIDTH), false,
                 this);
 
-            resolver.registerContentObserver(
+            resolve.registerContentObserver(
                 Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE), false,
                 this);
 
