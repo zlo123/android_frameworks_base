@@ -1307,29 +1307,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 updateRotation = true;
             }
 
-            // Height of the navigation bar when presented horizontally at bottom
-            mNavigationBarHeightForRotation[mPortraitRotation] =
-            mNavigationBarHeightForRotation[mUpsideDownRotation] =
-                Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.NAVIGATION_BAR_HEIGHT,
-                    mContext.getResources().getDimensionPixelSize(
-                    com.android.internal.R.dimen.navigation_bar_height));
-            mNavigationBarHeightForRotation[mLandscapeRotation] =
-            mNavigationBarHeightForRotation[mSeascapeRotation] =
-                Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE,
-                    mContext.getResources().getDimensionPixelSize(
-                    com.android.internal.R.dimen.navigation_bar_height_landscape));
-
-            // Width of the navigation bar when presented vertically along one side
-            mNavigationBarWidthForRotation[mPortraitRotation] =
-            mNavigationBarWidthForRotation[mUpsideDownRotation] =
-            mNavigationBarWidthForRotation[mLandscapeRotation] =
-            mNavigationBarWidthForRotation[mSeascapeRotation] =
-                Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.NAVIGATION_BAR_WIDTH,
-                    mContext.getResources().getDimensionPixelSize(
-                    com.android.internal.R.dimen.navigation_bar_width));
+            boolean hasNavBarChanged = Settings.System.getInt(resolver, Settings.System.NAVIGATION_BAR_BUTTONS_SHOW,
+            1) == 1;
+            if (mHasNavigationBar != hasNavBarChanged) {
+                mHasNavigationBar = hasNavBarChanged;
+                setInitialDisplaySize(mUnrestrictedScreenWidth, mUnrestrictedScreenHeight);
+            }
 
             // dreams
             mScreenSaverFeatureAvailable = mContext.getResources().getBoolean(
