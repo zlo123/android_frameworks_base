@@ -49,12 +49,17 @@ import java.util.Collections;
  * 
  * {@hide}
  */
-public class SamsungCDMAQualcommRIL extends QualcommSharedRIL implements
-CommandsInterface {
-    protected boolean mCSIM = false;
 
-    public SamsungCDMAQualcommRIL(Context context, int networkMode,
-            int cdmaSubscription) {
+public class SamsungCDMAQualcommRIL extends QualcommSharedRIL implements CommandsInterface {
+    protected boolean mCSIM = false;
+    protected IccHandler mIccHandler;
+    private final int RIL_INT_RADIO_OFF = 0;
+    private final int RIL_INT_RADIO_UNAVALIABLE = 1;
+    private final int RIL_INT_RADIO_ON = 2;
+    private final int RIL_INT_RADIO_ON_NG = 10;
+    private final int RIL_INT_RADIO_ON_HTC = 13;
+
+    public SamsungCDMAQualcommRIL(Context context, int networkMode, int cdmaSubscription) {
         super(context, networkMode, cdmaSubscription);
     }
 
