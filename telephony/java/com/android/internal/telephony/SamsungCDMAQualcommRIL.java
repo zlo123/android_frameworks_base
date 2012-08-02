@@ -51,6 +51,7 @@ import java.util.Collections;
  */
 public class SamsungCDMAQualcommRIL extends QualcommSharedRIL implements
 CommandsInterface {
+    protected boolean mCSIM = false;
 
     public SamsungCDMAQualcommRIL(Context context, int networkMode,
             int cdmaSubscription) {
@@ -82,6 +83,15 @@ CommandsInterface {
             ca.app_type = ca.AppTypeFromRILInt(p.readInt());
             ca.app_state = ca.AppStateFromRILInt(p.readInt());
             ca.perso_substate = ca.PersoSubstateFromRILInt(p.readInt());
+
+            if ((ca.app_state == IccCardApplication.AppState.APPSTATE_SUBSCRIPTION_PERSO) &&
+                ((ca.perso_substate == IccCardApplication.PersoSubState.PERSOSUBSTATE_READY) ||
+                (ca.perso_substate == IccCardApplication.PersoSubState.PERSOSUBSTATE_UNKNOWN))) {
+                // ridiculous hack for network SIM unlock pin
+                ca.app_state = IccCardApplication.AppState.APPSTATE_UNKNOWN;
+                Log.d(LOG_TAG, "ca.app_state == AppState.APPSTATE_SUBSCRIPTION_PERSO");
+                Log.d(LOG_TAG, "ca.perso_substate == PersoSubState.PERSOSUBSTATE_READY");
+            }
             ca.aid = p.readString();
             ca.app_label = p.readString();
             ca.pin1_replaced = p.readInt();
@@ -113,7 +123,7 @@ CommandsInterface {
         // Take just the least significant byte as the signal strength
         response[2] %= 256;
         response[4] %= 256;
-        
+
         // RIL_LTE_SignalStrength
         if (response[7] == 99) {
             // If LTE is not enabled, clear LTE results
