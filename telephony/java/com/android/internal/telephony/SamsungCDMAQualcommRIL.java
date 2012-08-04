@@ -49,17 +49,11 @@ import java.util.Collections;
  * 
  * {@hide}
  */
+public class SamsungCDMAQualcommRIL extends QualcommSharedRIL implements
+CommandsInterface {
 
-public class SamsungCDMAQualcommRIL extends QualcommSharedRIL implements CommandsInterface {
-    protected boolean mCSIM = false;
-    protected IccHandler mIccHandler;
-    private final int RIL_INT_RADIO_OFF = 0;
-    private final int RIL_INT_RADIO_UNAVALIABLE = 1;
-    private final int RIL_INT_RADIO_ON = 2;
-    private final int RIL_INT_RADIO_ON_NG = 10;
-    private final int RIL_INT_RADIO_ON_HTC = 13;
-
-    public SamsungCDMAQualcommRIL(Context context, int networkMode, int cdmaSubscription) {
+    public SamsungCDMAQualcommRIL(Context context, int networkMode,
+            int cdmaSubscription) {
         super(context, networkMode, cdmaSubscription);
     }
 
@@ -88,11 +82,10 @@ public class SamsungCDMAQualcommRIL extends QualcommSharedRIL implements Command
             ca.app_type = ca.AppTypeFromRILInt(p.readInt());
             ca.app_state = ca.AppStateFromRILInt(p.readInt());
             ca.perso_substate = ca.PersoSubstateFromRILInt(p.readInt());
-
             if ((ca.app_state == IccCardApplication.AppState.APPSTATE_SUBSCRIPTION_PERSO) &&
                 ((ca.perso_substate == IccCardApplication.PersoSubState.PERSOSUBSTATE_READY) ||
                 (ca.perso_substate == IccCardApplication.PersoSubState.PERSOSUBSTATE_UNKNOWN))) {
-                // ridiculous hack for network SIM unlock pin
+                // ridiculous sim hack
                 ca.app_state = IccCardApplication.AppState.APPSTATE_UNKNOWN;
                 Log.d(LOG_TAG, "ca.app_state == AppState.APPSTATE_SUBSCRIPTION_PERSO");
                 Log.d(LOG_TAG, "ca.perso_substate == PersoSubState.PERSOSUBSTATE_READY");
@@ -109,6 +102,21 @@ public class SamsungCDMAQualcommRIL extends QualcommSharedRIL implements Command
             p.readInt(); // - perso_unblock_retries
             status.addApplication(ca);
         }
+        int appIndex = -1;
+        appIndex = status.getGsmUmtsSubscriptionAppIndex();
+        Log.d(LOG_TAG, "This is a CDMA PHONE " + appIndex);
+
+        if (numApplications > 0) {
+            IccCardApplication application = status.getApplication(appIndex);
+            mAid = application.aid;
+            mUSIM = application.app_type == IccCardApplication.AppType.APPTYPE_USIM;
+            mSetPreferredNetworkType = mPreferredNetworkType;
+
+            if (TextUtils.isEmpty(mAid))
+                mAid = "";
+            Log.d(LOG_TAG, "mAid " + mAid);
+        }
+
         return status;
     }
 
@@ -128,7 +136,7 @@ public class SamsungCDMAQualcommRIL extends QualcommSharedRIL implements Command
         // Take just the least significant byte as the signal strength
         response[2] %= 256;
         response[4] %= 256;
-
+        
         // RIL_LTE_SignalStrength
         if (response[7] == 99) {
             // If LTE is not enabled, clear LTE results
