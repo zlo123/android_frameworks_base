@@ -113,6 +113,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
     private static final String POWER_MENU_SCREENSHOT_ENABLED = "power_menu_screenshot_enabled";
+    private static final String POWER_MENU_REBOOT_ENABLED = "power_menu_reboot_enabled";
 
     /**
      * @param context everything needs a context :(
@@ -198,7 +199,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
             void onToggle(boolean on) {
                 if (mHasTelephony && Boolean.parseBoolean(
-                        SystemProperties.get(TelephonyProperties.PROPERTY_INECM_MODE))) {
+                        SystemProperties.get(TelephonyProperties.PROPERTY_INECM_MODE))) {s
                     mIsWaitingForEcmExit = true;
                     // Launch ECM exit dialog
                     Intent ecmDialogIntent =
@@ -255,6 +256,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             });
 
         // next: reboot
+ if (Settings.System.getInt(mContext.getContentResolver(),
+                POWER_MENU_REBOOT_ENABLED, 0) == 1) {
         mItems.add(
             new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
                 public void onPress() {
