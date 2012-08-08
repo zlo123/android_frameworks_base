@@ -201,7 +201,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
             void onToggle(boolean on) {
                 if (mHasTelephony && Boolean.parseBoolean(
-                        SystemProperties.get(TelephonyProperties.PROPERTY_INECM_MODE))) {s
+                        SystemProperties.get(TelephonyProperties.PROPERTY_INECM_MODE))) {
                     mIsWaitingForEcmExit = true;
                     // Launch ECM exit dialog
                     Intent ecmDialogIntent =
