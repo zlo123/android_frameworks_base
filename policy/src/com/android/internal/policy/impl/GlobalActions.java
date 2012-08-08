@@ -266,14 +266,14 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                     rebootDialog().show();
                 }
 
-                public boolean showDuringKeyguard() {
-                    return true;
-                }
+                    public boolean showDuringKeyguard() {
+                        return true;
+                    }
 
-                public boolean showBeforeProvisioning() {
-                    return true;
-                }
-            });
+                    public boolean showBeforeProvisioning() {
+                        return true;
+                    }
+                });
 
         // next: profile - only shown if enabled, enabled by default
         if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 1) == 1) {

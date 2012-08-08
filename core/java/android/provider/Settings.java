@@ -2836,6 +2836,7 @@ public final class Settings {
             LOCKSCREEN_ALWAYS_SHOW_BATTERY,
             SYSTEM_PROFILES_ENABLED,
             POWER_MENU_SCREENSHOT_ENABLED,
+            POWER_MENU_REBOOT_ENABLED,
         };
 
         // Settings moved to Settings.Secure
