@@ -153,8 +153,10 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mKeyguardShowing = keyguardShowing;
         mDeviceProvisioned = isDeviceProvisioned;
         if (mDialog != null) {
-            mDialog.hide();
-            mDialog.cancel();
+            if (mUiContext != null) {
+                mUiContext = null;
+            }
+            mDialog.dismiss();
             mDialog = null;
             // Show delayed, so that the dismiss of the previous dialog completes
             mHandler.sendEmptyMessage(MESSAGE_SHOW);
@@ -1076,8 +1078,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
         return mIWindowManager;
     }
-    
-    
+
     private AlertDialog rebootDialog() {
         final String[] rebootOptions = mContext.getResources().getStringArray(R.array.shutdown_reboot_options);
         final String[] rebootReasons = mContext.getResources().getStringArray(R.array.shutdown_reboot_actions);
@@ -1112,4 +1113,3 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         return d;
     }
 }
-

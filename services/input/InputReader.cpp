@@ -2416,6 +2416,13 @@ void CursorInputMapper::process(const RawEvent* rawEvent) {
     if (rawEvent->type == EV_SYN && rawEvent->code == SYN_REPORT) {
         sync(rawEvent->when);
     }
+#ifdef LEGACY_TRACKPAD
+    // sync now since BTN_MOUSE is not necessarily followed by SYN_REPORT and
+    // we need to ensure that we report the up/down promptly.
+    else if (rawEvent->type == EV_KEY && rawEvent->code == BTN_MOUSE) {
+        sync(rawEvent->when);
+    }
+#endif
 }
 
 void CursorInputMapper::sync(nsecs_t when) {
@@ -2740,7 +2747,8 @@ void TouchInputMapper::configure(nsecs_t when,
     bool resetNeeded = false;
     if (!changes || (changes & (InputReaderConfiguration::CHANGE_DISPLAY_INFO
             | InputReaderConfiguration::CHANGE_POINTER_GESTURE_ENABLEMENT
-            | InputReaderConfiguration::CHANGE_SHOW_TOUCHES))) {
+            | InputReaderConfiguration::CHANGE_SHOW_TOUCHES
+            | InputReaderConfiguration::CHANGE_STYLUS_ICON_ENABLED))) {
         // Configure device sources, surface dimensions, orientation and
         // scaling factors.
         configureSurface(when, &resetNeeded);
@@ -4237,7 +4245,7 @@ void TouchInputMapper::dispatchPointerGestures(nsecs_t when, uint32_t policyFlag
                 && (mPointerGesture.lastGestureMode == PointerGesture::SWIPE
                         || mPointerGesture.lastGestureMode == PointerGesture::FREEFORM)) {
             // Remind the user of where the pointer is after finishing a gesture with spots.
-            mPointerController->unfade(PointerControllerInterface::TRANSITION_GRADUAL);
+            unfadePointer(PointerControllerInterface::TRANSITION_GRADUAL);
         }
         break;
     case PointerGesture::TAP:
@@ -4247,7 +4255,7 @@ void TouchInputMapper::dispatchPointerGestures(nsecs_t when, uint32_t policyFlag
     case PointerGesture::PRESS:
         // Unfade the pointer when the current gesture manipulates the
         // area directly under the pointer.
-        mPointerController->unfade(PointerControllerInterface::TRANSITION_IMMEDIATE);
+        unfadePointer(PointerControllerInterface::TRANSITION_IMMEDIATE);
         break;
     case PointerGesture::SWIPE:
     case PointerGesture::FREEFORM:
@@ -5285,7 +5293,7 @@ void TouchInputMapper::dispatchPointerSimple(nsecs_t when, uint32_t policyFlags,
             mPointerController->setPresentation(PointerControllerInterface::PRESENTATION_POINTER);
             mPointerController->clearSpots();
             mPointerController->setButtonState(mCurrentButtonState);
-            mPointerController->unfade(PointerControllerInterface::TRANSITION_IMMEDIATE);
+            unfadePointer(PointerControllerInterface::TRANSITION_IMMEDIATE);
         } else if (!down && !hovering && (mPointerSimple.down || mPointerSimple.hovering)) {
             mPointerController->fade(PointerControllerInterface::TRANSITION_GRADUAL);
         }
@@ -5478,6 +5486,13 @@ bool TouchInputMapper::updateMovedPointers(const PointerProperties* inProperties
 void TouchInputMapper::fadePointer() {
     if (mPointerController != NULL) {
         mPointerController->fade(PointerControllerInterface::TRANSITION_GRADUAL);
+    }
+}
+
+void TouchInputMapper::unfadePointer(PointerControllerInterface::Transition transition) {
+    if (mPointerController != NULL &&
+            !(mPointerUsage == POINTER_USAGE_STYLUS && !mConfig.stylusIconEnabled)) {
+        mPointerController->unfade(transition);
     }
 }
 

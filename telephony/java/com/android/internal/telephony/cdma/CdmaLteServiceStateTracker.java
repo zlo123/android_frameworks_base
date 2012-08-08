@@ -50,6 +50,7 @@ public class CdmaLteServiceStateTracker extends CdmaServiceStateTracker {
     public CdmaLteServiceStateTracker(CDMALTEPhone phone) {
         super(phone);
         mCdmaLtePhone = phone;
+
         mLteSS = new ServiceState();
         if (DBG) log("CdmaLteServiceStateTracker Constructors");
     }

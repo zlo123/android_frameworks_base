@@ -142,8 +142,6 @@ public class NavigationBarView extends LinearLayout {
     private int currentVisibility;
     private int currentSetting;
 
-
-    
     private class H extends Handler {
         public void handleMessage(Message m) {
             switch (m.what) {
@@ -419,7 +417,6 @@ public class NavigationBarView extends LinearLayout {
         return padding;
     }
 
-    
     private LayoutParams getLayoutParams(boolean landscape, float dp) {
         float px = dp * getResources().getDisplayMetrics().density;
         return landscape ?

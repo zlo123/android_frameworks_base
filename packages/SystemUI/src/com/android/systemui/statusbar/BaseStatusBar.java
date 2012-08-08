@@ -207,7 +207,7 @@ public abstract class BaseStatusBar extends SystemUI implements
         mStatusBarContainer = new FrameLayout(mContext);
 
         mShowNotificationCounts = Settings.System.getInt(mContext.getContentResolver(),
-            Settings.System.STATUS_BAR_NOTIF_COUNT, 0) == 1;
+                Settings.System.STATUS_BAR_NOTIF_COUNT, 0) == 1;
 
         // Connect in to the status bar manager service
         StatusBarIconList iconList = new StatusBarIconList();
