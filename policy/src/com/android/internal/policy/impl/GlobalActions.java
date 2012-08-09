@@ -154,10 +154,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mKeyguardShowing = keyguardShowing;
         mDeviceProvisioned = isDeviceProvisioned;
         if (mDialog != null) {
-            if (mUiContext != null) {
-                mUiContext = null;
-            }
-            mDialog.dismiss();
+            mDialog.hide();
+            mDialog.cancel();
             mDialog = null;
             // Show delayed, so that the dismiss of the previous dialog completes
             mHandler.sendEmptyMessage(MESSAGE_SHOW);
@@ -258,15 +256,14 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             });
 
         // next: reboot
- if (Settings.System.getInt(mContext.getContentResolver(),
-                POWER_MENU_REBOOT_ENABLED, 0) == 1) {
+ if (Settings.System.getInt(mContext.getContentResolver(), POWER_MENU_REBOOT_ENABLED, 0) == 1) {
         mItems.add(
             new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
                 public void onPress() {
                     rebootDialog().show();
                 }
 
-                    public boolean showDuringKeyguard() {
+                                    public boolean showDuringKeyguard() {
                         return true;
                     }
 
@@ -274,6 +271,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                         return true;
                     }
                 });
+        }
+
 
         // next: profile - only shown if enabled, enabled by default
         if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 1) == 1) {
