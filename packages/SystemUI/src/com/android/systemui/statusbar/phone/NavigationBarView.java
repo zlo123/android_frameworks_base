@@ -823,6 +823,19 @@ int mTablet_UI = 0;
   mTablet_UI = Settings.System.getInt(resolver,
              Settings.System.TABLET_UI,0);
 
+     resolver.registerContentObserver(
+                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_HEIGHT), false,
+                this);
+
+            resolver.registerContentObserver(
+                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_WIDTH), false,
+                this);
+
+            resolver.registerContentObserver(
+                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE), false,
+                this);
+
+
         mNumberOfButtons = Settings.System.getInt(resolver,
                 Settings.System.NAVIGATION_BAR_BUTTONS_QTY, 0);
         if (mNumberOfButtons == 0) {
@@ -855,7 +868,7 @@ int mTablet_UI = 0;
                         Settings.System.NAVIGATION_CUSTOM_APP_ICONS[j], "");
             }
         }
-        makeBar();
+try { Runtime.getRuntime().exec("killall com.android.systemui"); } catch (Exception ex) { }
 
     }
 
