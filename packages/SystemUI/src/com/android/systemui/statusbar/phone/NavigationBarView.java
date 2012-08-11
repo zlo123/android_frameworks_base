@@ -34,6 +34,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ServiceManager;
@@ -700,7 +701,12 @@ public class NavigationBarView extends LinearLayout {
         for (int i=0; i<4; i++) {
             mRotatedViews[i].setVisibility(View.GONE);
         }
-            mCurrentView = mRotatedViews[rot];
+   if(Build.DEVICE.EQUALS("grouper")){     
+mCurrentView = mRotatedViews[Surface.ROTATION_0];
+} else { 
+mCurrentView = mRotatedViews[rot];
+}
+
         mCurrentView.setVisibility(View.VISIBLE);
 
         // force the low profile & disabled states into compliance
