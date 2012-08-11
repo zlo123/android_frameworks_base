@@ -39,7 +39,6 @@ import android.os.Message;
 import android.os.ServiceManager;
 import android.provider.Settings;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Slog;
 import android.util.TypedValue;
@@ -116,7 +115,6 @@ public class NavigationBarView extends LinearLayout {
     public String[] mPortraitIcons = new String[5];
 
     public final static int StockButtonsQty = 3;
-int mTablet_UI = 0;
     public final static String[] StockClickActions = {
             "**back**", "**home**", "**recents**", "**null**", "**null**"
     };
@@ -702,11 +700,7 @@ int mTablet_UI = 0;
         for (int i=0; i<4; i++) {
             mRotatedViews[i].setVisibility(View.GONE);
         }
-        if (mTablet_UI !=0) { // this is either a tablet of Phablet.  Need to stay at Rot_0
-           mCurrentView = mRotatedViews[Surface.ROTATION_0];  
-        } else {
             mCurrentView = mRotatedViews[rot];
-       }
         mCurrentView.setVisibility(View.VISIBLE);
 
         // force the low profile & disabled states into compliance
@@ -787,6 +781,17 @@ int mTablet_UI = 0;
                     Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_BUTTONS_QTY), false,
                     this);
 
+           resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_HEIGHT), false,
+                    this);
+
+           resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_WIDTH), false,
+                    this);
+           resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE), false,
+                    this);
+
             for (int j = 0; j < 5; j++) { // watch all 5 settings for changes.
                 resolver.registerContentObserver(
                         Settings.System.getUriFor(Settings.System.NAVIGATION_CUSTOM_ACTIVITIES[j]),
@@ -819,22 +824,6 @@ int mTablet_UI = 0;
 
         currentVisibility = Settings.System.getInt(resolver,
                 Settings.System.MENU_VISIBILITY, VISIBILITY_SYSTEM);
-        
-  mTablet_UI = Settings.System.getInt(resolver,
-             Settings.System.TABLET_UI,0);
-
-     resolver.registerContentObserver(
-                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_HEIGHT), false,
-                this);
-
-            resolver.registerContentObserver(
-                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_WIDTH), false,
-                this);
-
-            resolver.registerContentObserver(
-                Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE), false,
-                this);
-
 
         mNumberOfButtons = Settings.System.getInt(resolver,
                 Settings.System.NAVIGATION_BAR_BUTTONS_QTY, 0);
@@ -868,7 +857,7 @@ int mTablet_UI = 0;
                         Settings.System.NAVIGATION_CUSTOM_APP_ICONS[j], "");
             }
         }
-try { Runtime.getRuntime().exec("killall com.android.systemui"); } catch (Exception ex) { }
+makeBar();
 
     }
 

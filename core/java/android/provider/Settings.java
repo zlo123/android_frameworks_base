@@ -2494,17 +2494,8 @@ public final class Settings {
          */
         public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
 
-        /**
-         * Whether the UI is initiated in tablet UI (false = phone UI)
-         * @hide
-         *  0 = Phone UI
-         *  1 = Tablet UI
-         *  2 = Phablet UI
-         */
-        public static final String TABLET_UI = "tablet_ui";
 
-
-        /**
+         /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
          * @hide
          */

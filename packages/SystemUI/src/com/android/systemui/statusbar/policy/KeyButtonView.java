@@ -136,7 +136,7 @@ int durationSpeedOff = 50;
             mGlowHeight = mGlowBG.getIntrinsicHeight();
             mDrawingAlpha = BUTTON_QUIESCENT_ALPHA;
         }
-      //  if (mGlowBG != null) {
+        if (mGlowBG != null) {
             int defaultColor = mContext.getResources().getColor(
                     com.android.internal.R.color.holo_blue_light);
             //ContentResolver resolver = mContext.getContentResolver();
