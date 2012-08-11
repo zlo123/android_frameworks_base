@@ -701,7 +701,7 @@ public class NavigationBarView extends LinearLayout {
         for (int i=0; i<4; i++) {
             mRotatedViews[i].setVisibility(View.GONE);
         }
-   if(Build.DEVICE.EQUALS("grouper")){     
+   if(Build.DEVICE.equals("grouper")){     
 mCurrentView = mRotatedViews[Surface.ROTATION_0];
 } else { 
 mCurrentView = mRotatedViews[rot];
