@@ -34,7 +34,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.build;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ServiceManager;
