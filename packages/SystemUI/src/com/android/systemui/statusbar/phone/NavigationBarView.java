@@ -21,20 +21,28 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.StatusBarManager;
 import android.animation.LayoutTransition;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ServiceManager;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Slog;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
+import android.view.VelocityTracker;
+import android.view.View;
+import android.view.Surface;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManagerImpl;
 import android.widget.ImageView;
@@ -58,8 +66,6 @@ public class NavigationBarView extends LinearLayout {
     final static String TAG = "PhoneStatusBar/NavigationBarView";
 
     final static boolean DEBUG_DEADZONE = false;
-
-    final static boolean NAVBAR_ALWAYS_AT_RIGHT = true;
 
     final static boolean ANIMATE_HIDE_TRANSITION = false; // turned off because it introduces unsightly delay when videos goes to full screen
     final static String NAVBAR_EDIT = "android.intent.action.NAVBAR_EDIT";
@@ -85,7 +91,7 @@ public class NavigationBarView extends LinearLayout {
     int mNavigationIconHints = 0;
 
     private Drawable mBackIcon, mBackLandIcon, mBackAltIcon, mBackAltLandIcon;
-    
+
     private DelegateViewHelper mDelegateHelper;
 
     // workaround for LayoutTransitions leaving the nav buttons in a weird state (bug 5549288)
@@ -305,7 +311,6 @@ public class NavigationBarView extends LinearLayout {
         setButtonWithTagVisibility(NavbarEditor.NAVBAR_ALWAYS_MENU, disableRecent ? View.INVISIBLE : View.VISIBLE);
         setButtonWithTagVisibility(NavbarEditor.NAVBAR_MENU_BIG, disableRecent ? View.INVISIBLE : View.VISIBLE);
         setButtonWithTagVisibility(NavbarEditor.NAVBAR_SEARCH, disableRecent ? View.INVISIBLE : View.VISIBLE);
-
     }
 
     public void setSlippery(boolean newSlippery) {
@@ -394,16 +399,52 @@ public class NavigationBarView extends LinearLayout {
         setLowProfile(false);
     }
 
-    @Override
-    public void onFinishInflate() {
-        mRotatedViews[Surface.ROTATION_0] = 
+    private void regenerateRotatedViews(){
+        boolean leftNavbar = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.NAVBAR_LEFT, 0) == 1;
+
+        mRotatedViews[Surface.ROTATION_0] =
         mRotatedViews[Surface.ROTATION_180] = findViewById(R.id.rot0);
 
-        mRotatedViews[Surface.ROTATION_90] = findViewById(R.id.rot90);
-        
-        mRotatedViews[Surface.ROTATION_270] = NAVBAR_ALWAYS_AT_RIGHT
-                                                ? findViewById(R.id.rot90)
-                                                : findViewById(R.id.rot270);
+        if (leftNavbar){
+            mRotatedViews[Surface.ROTATION_90] =
+            mRotatedViews[Surface.ROTATION_270] = findViewById(R.id.rot270);
+        } else {
+            mRotatedViews[Surface.ROTATION_90] =
+            mRotatedViews[Surface.ROTATION_270] = findViewById(R.id.rot90);
+        }
+
+        // TODO: Setting the navbar setting to left in landscape mode will
+        // fail as the deadzone will be placed to the left of the screen. This
+        // causes many touches to not be registered properly.
+        // Setting it in portrait mode will work, however.
+
+        // Rebooting will workaround the problem. A better solution needs to be
+        // found. Current suspicion is that the navbar's width is somehow
+        // getting set to 0. WORK_AROUND_INVALID_LAYOUT is working around
+        // displaying the navbar, but not the placement of the deadzone.
+        // This is the message shown W/PhoneStatusBar/NavigationBarView(  413): *** Invalid layout in navigation bar (sizeChanged this=84x720 cur=0x720)
+        // However, if we set the navbar setting to the left with the settings
+        // screen on portrait mode, this problem is **not** present.
+
+        // Setting the navbar to the right will not pose this problem, also.
+        // Set DEBUG_DEADZONE to true to see the problem for yourself.
+    }
+
+    @Override
+    public void onFinishInflate() {
+        regenerateRotatedViews();
+
+        ContentResolver resolver = mContext.getContentResolver();
+        resolver.registerContentObserver(
+                Settings.System.getUriFor(Settings.System.NAVBAR_LEFT),
+                false,
+                new ContentObserver(mHandler){
+            @Override
+            public void onChange(boolean selfChange){
+                regenerateRotatedViews();
+            }
+        });
 
         mCurrentView = mRotatedViews[Surface.ROTATION_0];
     }
@@ -436,7 +477,6 @@ public class NavigationBarView extends LinearLayout {
         if (DEBUG) {
             Slog.d(TAG, "reorient(): rot=" + mDisplay.getRotation());
         }
-
         setNavigationIconHints(mNavigationIconHints, true);
     }
 
@@ -451,13 +491,11 @@ public class NavigationBarView extends LinearLayout {
         mDelegateHelper.setInitialTouchRegion(vViews);
     }
 
-
-
     /*
     @Override
     protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
         if (DEBUG) Slog.d(TAG, String.format(
-                    "onLayout: %s (%d,%d,%d,%d)", 
+                    "onLayout: %s (%d,%d,%d,%d)",
                     changed?"changed":"notchanged", left, top, right, bottom));
         super.onLayout(changed, left, top, right, bottom);
     }
@@ -473,7 +511,6 @@ public class NavigationBarView extends LinearLayout {
         return super.onInterceptTouchEvent(ev);
     }
     */
-        
 
     private String getResourceName(int resId) {
         if (resId != 0) {
@@ -513,7 +550,7 @@ public class NavigationBarView extends LinearLayout {
         getWindowVisibleDisplayFrame(r);
         final boolean offscreen = r.right > mDisplay.getRawWidth()
             || r.bottom > mDisplay.getRawHeight();
-        pw.println("      window: " 
+        pw.println("      window: "
                 + r.toShortString()
                 + " " + visibilityToString(getWindowVisibility())
                 + (offscreen ? " OFFSCREEN!" : ""));
@@ -548,5 +585,4 @@ public class NavigationBarView extends LinearLayout {
                 );
         pw.println("    }");
     }
-
 }
