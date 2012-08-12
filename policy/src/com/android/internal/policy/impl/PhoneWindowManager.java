@@ -1353,58 +1353,58 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
 
         if (!mHasSystemNavBar) {
-        final int showByDefault = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_showNavigationBar) ? 1 : 0;
-        mHasNavigationBar = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.NAVIGATION_BAR_SHOW, showByDefault) == 1;
-        // Allow a system property to override this. Used by the emulator.
-        // See also hasNavigationBar().
-        String navBarOverride = SystemProperties.get("qemu.hw.mainkeys");
-        if (! "".equals(navBarOverride)) {
-            if      (navBarOverride.equals("1")) mHasNavigationBar = false;
-            else if (navBarOverride.equals("0")) mHasNavigationBar = true;
-        } else {
-            mHasNavigationBar = false;
-        }
+		    final int showByDefault = mContext.getResources().getBoolean(
+		            com.android.internal.R.bool.config_showNavigationBar) ? 1 : 0;
+		    mHasNavigationBar = Settings.System.getInt(mContext.getContentResolver(),
+		            Settings.System.NAVIGATION_BAR_SHOW, showByDefault) == 1;
+		    // Allow a system property to override this. Used by the emulator.
+		    // See also hasNavigationBar().
+		    String navBarOverride = SystemProperties.get("qemu.hw.mainkeys");
+		    if (! "".equals(navBarOverride)) {
+		        if      (navBarOverride.equals("1")) mHasNavigationBar = false;
+		        else if (navBarOverride.equals("0")) mHasNavigationBar = true;
+		    } else {
+		        mHasNavigationBar = false;
+		    }
 
-        if (mNavBarFirstBootFlag){
-            mHasNavigationBar = (showByDefault == 1);
-            mNavBarFirstBootFlag = false;
-            // at first boot up, we need to make sure navbar gets created (or obey framework setting).
-            // this should quickly get over-ridden by the settings observer if it was
-            // disabled by the user.
-        }
+		    if (mNavBarFirstBootFlag){
+		        mHasNavigationBar = (showByDefault == 1);
+		        mNavBarFirstBootFlag = false;
+		        // at first boot up, we need to make sure navbar gets created (or obey framework setting).
+		        // this should quickly get over-ridden by the settings observer if it was
+		        // disabled by the user.
+		    }
 
-        if (mHasSystemNavBar) {
-            // The system bar is always at the bottom.  If you are watching
-            // a video in landscape, we don't need to hide it if we can still
-            // show a 16:9 aspect ratio with it.
-            int longSizeDp = longSize
-                    * DisplayMetrics.DENSITY_DEFAULT
-                    / DisplayMetrics.DENSITY_DEVICE;
-            int barHeightDp = mNavigationBarHeightForRotation[mLandscapeRotation]
-                    * DisplayMetrics.DENSITY_DEFAULT
-                    / DisplayMetrics.DENSITY_DEVICE;
-            int aspect = ((shortSizeDp-barHeightDp) * 16) / longSizeDp;
-            // We have computed the aspect ratio with the bar height taken
-            // out to be 16:aspect.  If this is less than 9, then hiding
-            // the navigation bar will provide more useful space for wide
-            // screen movies.
-            mCanHideNavigationBar = aspect < 9;
-        } else if (mHasNavigationBar) {
-            // The navigation bar is at the right in landscape; it seems always
-            // useful to hide it for showing a video.
-            mCanHideNavigationBar = true;
-        } else {
-            mCanHideNavigationBar = false;
-        }
+		    if (mHasSystemNavBar) {
+		        // The system bar is always at the bottom.  If you are watching
+		        // a video in landscape, we don't need to hide it if we can still
+		        // show a 16:9 aspect ratio with it.
+		        int longSizeDp = longSize
+		                * DisplayMetrics.DENSITY_DEFAULT
+		                / DisplayMetrics.DENSITY_DEVICE;
+		        int barHeightDp = mNavigationBarHeightForRotation[mLandscapeRotation]
+		                * DisplayMetrics.DENSITY_DEFAULT
+		                / DisplayMetrics.DENSITY_DEVICE;
+		        int aspect = ((shortSizeDp-barHeightDp) * 16) / longSizeDp;
+		        // We have computed the aspect ratio with the bar height taken
+		        // out to be 16:aspect.  If this is less than 9, then hiding
+		        // the navigation bar will provide more useful space for wide
+		        // screen movies.
+		        mCanHideNavigationBar = aspect < 9;
+		    } else if (mHasNavigationBar) {
+		        // The navigation bar is at the right in landscape; it seems always
+		        // useful to hide it for showing a video.
+		        mCanHideNavigationBar = true;
+		    } else {
+		        mCanHideNavigationBar = false;
+		    }
 
-        if ("portrait".equals(SystemProperties.get("persist.demo.hdmirotation"))) {
-            mHdmiRotation = mPortraitRotation;
-        } else {
-            mHdmiRotation = mLandscapeRotation;
-        }
-      }
+		    if ("portrait".equals(SystemProperties.get("persist.demo.hdmirotation"))) {
+		        mHdmiRotation = mPortraitRotation;
+		    } else {
+		        mHdmiRotation = mLandscapeRotation;
+		    }
+    	}
     }
 
     public void updateSettings() {
@@ -1487,6 +1487,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // Configure rotation lock.
             int userRotation = Settings.System.getInt(resolver,
                     Settings.System.USER_ROTATION, Surface.ROTATION_0);
+
             if (mUserRotation != userRotation) {
                 mUserRotation = userRotation;
                 updateRotation = true;
@@ -3725,8 +3726,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (keyCode == KeyEvent.KEYCODE_POWER) {
             policyFlags |= WindowManagerPolicy.FLAG_WAKE;
         }
-        final boolean isWakeKey = (policyFlags & (WindowManagerPolicy.FLAG_WAKE
-                | WindowManagerPolicy.FLAG_WAKE_DROPPED)) != 0;
+        final boolean isWakeKey = (policyFlags
+                & (WindowManagerPolicy.FLAG_WAKE | WindowManagerPolicy.FLAG_WAKE_DROPPED)) != 0;
 
         // Basic policy based on screen state and keyguard.
         // FIXME: This policy isn't quite correct.  We shouldn't care whether the screen

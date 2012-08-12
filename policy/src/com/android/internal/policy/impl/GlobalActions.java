@@ -108,12 +108,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private IWindowManager mIWindowManager;
     private Profile mChosenProfile;
-    
-    private static int rebootIndex = 0;
 
     private static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
     private static final String POWER_MENU_SCREENSHOT_ENABLED = "power_menu_screenshot_enabled";
-    private static final String POWER_MENU_REBOOT_ENABLED = "power_menu_reboot_enabled";
 
     /**
      * @param context everything needs a context :(
@@ -154,8 +151,10 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mKeyguardShowing = keyguardShowing;
         mDeviceProvisioned = isDeviceProvisioned;
         if (mDialog != null) {
-            mDialog.hide();
-            mDialog.cancel();
+            if (mUiContext != null) {
+                mUiContext = null;
+            }
+            mDialog.dismiss();
             mDialog = null;
             // Show delayed, so that the dismiss of the previous dialog completes
             mHandler.sendEmptyMessage(MESSAGE_SHOW);
@@ -256,23 +255,25 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             });
 
         // next: reboot
- if (Settings.System.getInt(mContext.getContentResolver(), POWER_MENU_REBOOT_ENABLED, 0) == 1) {
         mItems.add(
             new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
                 public void onPress() {
-                    rebootDialog().show();
+                    mWindowManagerFuncs.reboot();
                 }
 
-                                    public boolean showDuringKeyguard() {
-                        return true;
-                    }
+                public boolean onLongPress() {
+                    mWindowManagerFuncs.rebootSafeMode();
+                    return true;
+                }
 
-                    public boolean showBeforeProvisioning() {
-                        return true;
-                    }
-                });
-        }
+                public boolean showDuringKeyguard() {
+                    return true;
+                }
 
+                public boolean showBeforeProvisioning() {
+                    return true;
+                }
+            });
 
         // next: profile - only shown if enabled, enabled by default
         if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 1) == 1) {
@@ -1079,39 +1080,5 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             mIWindowManager = IWindowManager.Stub.asInterface(b);
         }
         return mIWindowManager;
-    }
-
-    private AlertDialog rebootDialog() {
-        final String[] rebootOptions = mContext.getResources().getStringArray(R.array.shutdown_reboot_options);
-        final String[] rebootReasons = mContext.getResources().getStringArray(R.array.shutdown_reboot_actions);
-
-        AlertDialog d = new AlertDialog.Builder(getUiContext())
-                .setSingleChoiceItems(rebootOptions, 0,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                rebootIndex = which;
-                            }
-                        })
-                .setNegativeButton(android.R.string.cancel,
-                        new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                .setPositiveButton(R.string.reboot_system, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mWindowManagerFuncs.reboot(rebootReasons[rebootIndex]);
-                    }
-                }).create();
-
-        d.getListView().setItemsCanFocus(true);
-        d.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
-
-        return d;
     }
 }
