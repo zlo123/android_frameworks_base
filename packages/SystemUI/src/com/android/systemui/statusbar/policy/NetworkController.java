@@ -90,7 +90,6 @@ public class NetworkController extends BroadcastReceiver {
     boolean mShowPhoneRSSIForData = false;
     boolean mShowAtLeastThreeGees = false;
     boolean mAlwaysShowCdmaRssi = false;
-    boolean mShowMoreThreeGees = false;
 
     String mContentDescriptionPhoneSignal;
     String mContentDescriptionWifi;
@@ -184,9 +183,6 @@ public class NetworkController extends BroadcastReceiver {
 
         mShowPhoneRSSIForData = res.getBoolean(R.bool.config_showPhoneRSSIForData);
         mShowAtLeastThreeGees = res.getBoolean(R.bool.config_showMin3G);
-        mShowMoreThreeGees = res.getBoolean(R.bool.config_showMore3G);
-        if (mShowMoreThreeGees)
-            mShowAtLeastThreeGees = true; //double check
         mAlwaysShowCdmaRssi = res.getBoolean(
                 com.android.internal.R.bool.config_alwaysUseCdmaRssi);
 
@@ -571,21 +567,17 @@ public class NetworkController extends BroadcastReceiver {
                     break;
                 case TelephonyManager.NETWORK_TYPE_CDMA:
                     // display 1xRTT for IS95A/B
-                    if (!mShowMoreThreeGees) {
-                        mDataIconList = TelephonyIcons.DATA_1X[mInetCondition];
-                        mDataTypeIconId = R.drawable.stat_sys_data_connected_1x;
-                        mContentDescriptionDataType = mContext.getString(
-                                R.string.accessibility_data_connection_cdma);
-                        break;
-                    }
+                    mDataIconList = TelephonyIcons.DATA_1X[mInetCondition];
+                    mDataTypeIconId = R.drawable.stat_sys_data_connected_1x;
+                    mContentDescriptionDataType = mContext.getString(
+                            R.string.accessibility_data_connection_cdma);
+                    break;
                 case TelephonyManager.NETWORK_TYPE_1xRTT:
-                    if (!mShowMoreThreeGees) {
-                        mDataIconList = TelephonyIcons.DATA_1X[mInetCondition];
-                        mDataTypeIconId = R.drawable.stat_sys_data_connected_1x;
-                        mContentDescriptionDataType = mContext.getString(
-                                R.string.accessibility_data_connection_cdma);
-                        break;
-                    }
+                    mDataIconList = TelephonyIcons.DATA_1X[mInetCondition];
+                    mDataTypeIconId = R.drawable.stat_sys_data_connected_1x;
+                    mContentDescriptionDataType = mContext.getString(
+                            R.string.accessibility_data_connection_cdma);
+                    break;
                 case TelephonyManager.NETWORK_TYPE_EVDO_0: //fall through
                 case TelephonyManager.NETWORK_TYPE_EVDO_A:
                 case TelephonyManager.NETWORK_TYPE_EVDO_B:

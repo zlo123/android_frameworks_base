@@ -30,27 +30,7 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         >
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
-            
-            <com.android.systemui.statusbar.policy.BatteryBarController
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:visibility="gone"
-            systemui:viewLocation="2"
-            android:layout_alignParentTop="true" />
-            
-            <com.android.systemui.statusbar.policy.BatteryBarController
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:visibility="gone"
-            systemui:viewLocation="3"
-            android:layout_alignParentBottom="true" />
-             
-        </RelativeLayout>
-            
+
         <LinearLayout
             android:layout_height="match_parent"
             android:layout_width="match_parent"
@@ -67,20 +47,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="0"
                 android:visibility="invisible"
-                />
-            <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/menu_left"
-                android:layout_width="40dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_sysbar_menu"
-                systemui:keyCode="82"
-                android:layout_weight="0"
-                android:contentDescription="@string/accessibility_menu"
-                systemui:glowBackground="@drawable/ic_sysbar_highlight" />
-                <View 
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:visibility="invisible"
                 />
             <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/back"
                 android:layout_width="@dimen/navigation_key_width"
@@ -215,7 +181,7 @@
                 systemui:glowBackground="@drawable/ic_sysbar_highlight_land"
                 />
             <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/recent_apps"
-                android:layout_height="40dp"
+                android:layout_height="80dp"
                 android:layout_width="match_parent"
                 android:src="@drawable/ic_sysbar_recent_land"
                 android:layout_weight="0"
@@ -255,7 +221,7 @@
                 systemui:glowBackground="@drawable/ic_sysbar_highlight_land"
                 />
             <View
-                android:layout_height="80dp"
+                android:layout_height="40dp"
                 android:layout_width="match_parent"
                 android:layout_weight="0"
                 android:visibility="invisible"
