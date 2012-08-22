@@ -107,10 +107,6 @@ class BatteryService extends Binder {
     private boolean mBatteryLevelCritical;
     private int mInvalidCharger;
 
-    private int mDockBatteryStatus;
-    private int mDockBatteryLevel;
-    private String mDockBatteryPresent;
-
     private int mLastBatteryStatus;
     private int mLastBatteryHealth;
     private boolean mLastBatteryPresent;
@@ -132,8 +128,6 @@ class BatteryService extends Binder {
 
     private int mLowBatteryWarningLevel;
     private int mLowBatteryCloseWarningLevel;
-
-    private boolean mHasDockBattery;
 
     private int mPlugType;
     private int mLastPlugType = -1; // Extra state so we can detect first run
@@ -772,3 +766,4 @@ class BatteryService extends Binder {
     }
 
 }
+
