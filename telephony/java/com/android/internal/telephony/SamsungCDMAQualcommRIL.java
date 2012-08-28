@@ -27,6 +27,7 @@ import android.os.Message;
 import android.os.Parcel;
 import android.telephony.SmsMessage;
 import android.os.SystemProperties;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -50,8 +51,9 @@ import java.util.Collections;
  */
 public class SamsungCDMAQualcommRIL extends QualcommSharedRIL implements
 CommandsInterface {
-    private Object mLock = new Object();
-    private boolean mIsSending = false;
+    private Object mSMSLock = new Object();
+    private boolean mIsSendingSMS = false;
+    public static final long SEND_SMS_TIMEOUT_IN_MS = 30000;
 
     public SamsungCDMAQualcommRIL(Context context, int networkMode,
             int cdmaSubscription) {
@@ -64,15 +66,22 @@ CommandsInterface {
         // Do not send a new SMS until the response for the previous SMS has been received
         //   * for the error case where the response never comes back, time out after
         //     30 seconds and just try the next CDMA_SEND_SMS
-        synchronized (mLock) {
-            if (mIsSending) {
+        synchronized (mSMSLock) {
+            long timeoutTime  = SystemClock.elapsedRealtime() + SEND_SMS_TIMEOUT_IN_MS;
+            long waitTimeLeft = SEND_SMS_TIMEOUT_IN_MS;
+            while (mIsSendingSMS && (waitTimeLeft > 0)) {
                 Log.d(LOG_TAG, "sendCdmaSms() waiting for response of previous CDMA_SEND_SMS");
                 try {
-                    mLock.wait(30000);
+                    mSMSLock.wait(waitTimeLeft);
                 } catch (InterruptedException ex) {
+                    // ignore the interrupt and rewait for the remainder
                 }
+                waitTimeLeft = timeoutTime - SystemClock.elapsedRealtime();
             }
-            mIsSending = true;
+            if (waitTimeLeft <= 0) {
+                Log.e(LOG_TAG, "sendCdmaSms() timed out waiting for response of previous CDMA_SEND_SMS");
+            }
+            mIsSendingSMS = true;
         }
 
         super.sendCdmaSms(pdu, result);
@@ -293,9 +302,9 @@ CommandsInterface {
     protected Object
     responseSMS(Parcel p) {
         // Notify that sendSMS() can send the next SMS
-        synchronized (mLock) {
-            mIsSending = false;
-            mLock.notify();
+        synchronized (mSMSLock) {
+            mIsSendingSMS = false;
+            mSMSLock.notify();
         }
 
         return super.responseSMS(p);
