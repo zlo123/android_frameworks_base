@@ -2384,13 +2384,6 @@ public final class Settings {
         public static final String NAV_BUTTONS = "nav_buttons";
 
         /**
-         * Navigation bar on left side of the screen.
-         *
-         * @hide
-         */
-        public static final String NAVBAR_LEFT = "navigation_bar_left";
-
-        /**
          * Navigation bar if menu key is enabled or disabled.
          *
          * @hide
@@ -2418,13 +2411,13 @@ public final class Settings {
          */
         public static final String NAVIGATION_BAR_SHOW = "navigation_bar_show";
 
-        /**
+       /**
         * Notification Power Widget - Custom Brightness Mode
         * @hide
         */
         public static final String EXPANDED_BRIGHTNESS_MODE = "expanded_brightness_mode";
 
-        /**
+       /**
         * Notification Power Widget - Custom Network Mode
         * @hide
         */
@@ -2437,25 +2430,25 @@ public final class Settings {
          */
         public static final String LTE_MODE = "lte_mode";
 
-        /**
+       /**
         * Notification Power Widget - Custom Screen Timeout
         * @hide
         */
         public static final String EXPANDED_SCREENTIMEOUT_MODE = "expanded_screentimeout_mode";
 
-        /**
+       /**
         * Notification Power Widget - Custom Ring Mode
         * @hide
         */
         public static final String EXPANDED_RING_MODE = "expanded_ring_mode";
 
-        /**
+       /**
         * Notification Power Widget - Custom Torch Mode
         * @hide
         */
         public static final String EXPANDED_FLASH_MODE = "expanded_flash_mode";
 
-        /**
+       /**
         * AutoHide CombinedBar on tablets.
         * @hide
         */
@@ -2501,7 +2494,7 @@ public final class Settings {
          */
         public static final String STATUS_BAR_SIGNAL_TEXT = "status_bar_signal";
 
-         /**
+        /**
          * Whether to control brightness from status bar
          *
          * @hide
@@ -2543,7 +2536,7 @@ public final class Settings {
 
         /**
          * Boolean value whether to link ringtone and notification volumes
-         *
+         * 
          * @hide
          */
         public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
