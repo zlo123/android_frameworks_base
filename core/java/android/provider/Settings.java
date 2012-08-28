@@ -2383,19 +2383,46 @@ public final class Settings {
         public static final String WIDGET_BUTTONS_TABLET = "expanded_widget_buttons_tablet";
 
         /**
-
-         * Navigation controls to Use
+         * Navigation bar controls and buttons.
          *
          * @hide
          */
         public static final String NAV_BUTTONS = "nav_buttons";
 
         /**
-         * Navigation bars on the left side of the screen.
+         * Navigation bar on left side of the screen.
          *
          * @hide
          */
         public static final String NAVBAR_LEFT = "navigation_bar_left";
+
+        /**
+         * Navigation bar if menu key is enabled or disabled.
+         *
+         * @hide
+         */
+        public static final String KEY_MENU_ENABLED = "key_menu_enabled";
+
+        /**
+         * Navigation bar if back key is enabled or disabled.
+         *
+         * @hide
+         */
+        public static final String KEY_BACK_ENABLED = "key_back_enabled";
+
+        /**
+         * Navigation bar if home key is enabled or disabled.
+         *
+         * @hide
+         */
+        public static final String KEY_HOME_ENABLED = "key_home_enabled";
+
+        /**
+         * Navigation bar if visible is enabled or disabled.
+         *
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_SHOW = "navigation_bar_show";
 
         /**
         * Notification Power Widget - Custom Brightness Mode
