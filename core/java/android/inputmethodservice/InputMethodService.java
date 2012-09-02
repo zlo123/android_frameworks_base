@@ -249,6 +249,19 @@ public class InputMethodService extends AbstractInputMethodService {
 
     int mVolumeKeyCursorControl = 0;
 
+    /**
+     * @hide
+     */
+    public static final int VOLUME_CURSOR_OFF = 0;
+    /**
+     * @hide
+     */
+    public static final int VOLUME_CURSOR_ON = 1;
+    /**
+     * @hide
+     */
+    public static final int VOLUME_CURSOR_ON_REVERSE = 2;
+
     InputMethodManager mImm;
     
     int mTheme = 0;
@@ -1740,9 +1753,9 @@ public class InputMethodService extends AbstractInputMethodService {
         if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP) {
             mVolumeKeyCursorControl = Settings.System.getInt(getContentResolver(),
                     Settings.System.VOLUME_KEY_CURSOR_CONTROL, 0);
-            if(isInputViewShown() && mVolumeKeyCursorControl != 0) {
-                sendDownUpKeyEvents(mVolumeKeyCursorControl == 2 ? KeyEvent.KEYCODE_DPAD_RIGHT
-                        : KeyEvent.KEYCODE_DPAD_LEFT);
+            if (isInputViewShown() && (mVolumeKeyCursorControl != VOLUME_CURSOR_OFF)) {
+                sendDownUpKeyEvents((mVolumeKeyCursorControl == VOLUME_CURSOR_ON_REVERSE)
+                        ? KeyEvent.KEYCODE_DPAD_RIGHT : KeyEvent.KEYCODE_DPAD_LEFT);
                 return true;
             }
             return false;
@@ -1750,9 +1763,9 @@ public class InputMethodService extends AbstractInputMethodService {
         if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
             mVolumeKeyCursorControl = Settings.System.getInt(getContentResolver(),
                     Settings.System.VOLUME_KEY_CURSOR_CONTROL, 0);
-            if(isInputViewShown() && mVolumeKeyCursorControl != 0) {
-                sendDownUpKeyEvents(mVolumeKeyCursorControl == 2 ? KeyEvent.KEYCODE_DPAD_LEFT
-                        : KeyEvent.KEYCODE_DPAD_RIGHT);
+            if (isInputViewShown() && (mVolumeKeyCursorControl != VOLUME_CURSOR_OFF)) {
+                sendDownUpKeyEvents((mVolumeKeyCursorControl == VOLUME_CURSOR_ON_REVERSE)
+                        ? KeyEvent.KEYCODE_DPAD_LEFT : KeyEvent.KEYCODE_DPAD_RIGHT);
                 return true;
             }
             return false;
@@ -1802,12 +1815,14 @@ public class InputMethodService extends AbstractInputMethodService {
                 && !event.isCanceled()) {
             return handleBack(true);
         }
-        if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP
+                 || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             mVolumeKeyCursorControl = Settings.System.getInt(getContentResolver(),
                     Settings.System.VOLUME_KEY_CURSOR_CONTROL, 0);
-            if(isInputViewShown() && mVolumeKeyCursorControl != 0) {
+            if (isInputViewShown() && (mVolumeKeyCursorControl != VOLUME_CURSOR_OFF)) {
                 return true;
             }
+            return false;
         }
         return doMovementKey(keyCode, event, MOVEMENT_UP);
     }
