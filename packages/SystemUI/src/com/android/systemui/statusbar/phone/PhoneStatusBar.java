@@ -658,7 +658,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         // a bit jarring
         mRecentsPanel.setMinSwipeAlpha(0.03f);
         if (mNavigationBarView != null) {
-            mNavigationBarView.setListener(mRecentsClickListener, mRecentsPanel, mHomeSearchActionListener);
+            mNavigationBarView.getRecentsButton().setOnTouchListener(mRecentsPanel);
         }
     }
 
@@ -742,7 +742,10 @@ public class PhoneStatusBar extends BaseStatusBar {
 
     private void prepareNavigationBarView() {
         mNavigationBarView.reorient();
-        mNavigationBarView.setListener(mRecentsClickListener,mRecentsPanel, mHomeSearchActionListener);
+
+        mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);
+        mNavigationBarView.getRecentsButton().setOnTouchListener(mRecentsPanel);
+        mNavigationBarView.getHomeButton().setOnTouchListener(mHomeSearchActionListener);
         updateSearchPanel();
     }
 
@@ -2524,7 +2527,6 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         makeStatusBarView();
         repositionNavigationBar();
-        mNavigationBarView.updateResources();
 
         // recreate StatusBarIconViews.
         for (int i = 0; i < nIcons; i++) {
@@ -2677,7 +2679,7 @@ public class PhoneStatusBar extends BaseStatusBar {
 
     @Override
     protected boolean shouldDisableNavbarGestures() {
-        return mExpanded || NavigationBarView.getEditMode() || (mDisabled & StatusBarManager.DISABLE_HOME) != 0;
+        return mExpanded || (mDisabled & StatusBarManager.DISABLE_HOME) != 0;
     }
 
     private static class FastColorDrawable extends Drawable {
