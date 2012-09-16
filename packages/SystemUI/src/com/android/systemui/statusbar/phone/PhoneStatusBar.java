@@ -591,6 +591,8 @@ public class PhoneStatusBar extends BaseStatusBar {
                 mBrightNessContentObs);
         updatePropFactorValue();
 
+        mVelocityTracker = VelocityTracker.obtain();
+
         return mStatusBarView;
     }
 
@@ -1527,8 +1529,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             return;
         mTracking = false;
         setPileLayers(View.LAYER_TYPE_NONE);
-        mVelocityTracker.recycle();
-        mVelocityTracker = null;
+        mVelocityTracker.clear();
         mCloseView.setPressed(false);
     }
 
@@ -1619,7 +1620,7 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         mTracking = true;
         setPileLayers(View.LAYER_TYPE_HARDWARE);
-        mVelocityTracker = VelocityTracker.obtain();
+        mVelocityTracker.clear();
         if (opening) {
             makeExpandedVisible(true);
         } else {
@@ -1729,6 +1730,50 @@ public class PhoneStatusBar extends BaseStatusBar {
         }
     }
 
+    private void brightnessControl(MotionEvent event)
+    {
+        if (mBrightnessControl)
+        {
+            final int action = event.getAction();
+            final int x = (int)event.getRawX();
+            final int y = (int)event.getRawY();
+            if (action == MotionEvent.ACTION_DOWN) {
+                mLinger = 0;
+                mInitialTouchX = x;
+                mInitialTouchY = y;
+                mHandler.removeCallbacks(mLongPressBrightnessChange);
+                if ((y + mViewDelta) < mNotificationPanelMinHeight) {
+                    mHandler.postDelayed(mLongPressBrightnessChange,
+                            BRIGHTNESS_CONTROL_LONG_PRESS_TIMEOUT);
+                }
+            } else if (action == MotionEvent.ACTION_MOVE) {
+                if ((y + mViewDelta) < mNotificationPanelMinHeight) {
+                    mVelocityTracker.computeCurrentVelocity(1000);
+                    float yVel = mVelocityTracker.getYVelocity();
+                    yVel = Math.abs(yVel);
+                    if (yVel < 50.0f) {
+                        if (mLinger > BRIGHTNESS_CONTROL_LINGER_THRESHOLD) {
+                            adjustBrightness(x);
+                        } else {
+                            mLinger++;
+                        }
+                    }
+                    int touchSlop = ViewConfiguration.get(mContext).getScaledTouchSlop();
+                    if (Math.abs(x - mInitialTouchX) > touchSlop ||
+                            Math.abs(y - mInitialTouchY) > touchSlop) {
+                        mHandler.removeCallbacks(mLongPressBrightnessChange);
+                    }
+                } else {
+                    mHandler.removeCallbacks(mLongPressBrightnessChange);
+                }
+            } else if (action == MotionEvent.ACTION_UP
+                    || action == MotionEvent.ACTION_CANCEL) {
+                mHandler.removeCallbacks(mLongPressBrightnessChange);
+                mLinger = 0;
+            }
+        }
+    }
+
     boolean interceptTouchEvent(MotionEvent event) {
         if (SPEW) {
             Slog.d(TAG, "Touch: rawY=" + event.getRawY() + " event=" + event + " mDisabled="
@@ -1742,24 +1787,13 @@ public class PhoneStatusBar extends BaseStatusBar {
             }
         }
 
-        if ((mDisabled & StatusBarManager.DISABLE_EXPAND) != 0) {
-            return false;
-        }
-
         final int action = event.getAction();
         final int statusBarSize = getStatusBarHeight();
         final int hitSize = statusBarSize*2;
         final int x = (int)event.getRawX();
         final int y = (int)event.getRawY();
+
         if (action == MotionEvent.ACTION_DOWN) {
-            if (!areLightsOn()) {
-                setLightsOn(true);
-            }
-
-            mLinger = 0;
-            mInitialTouchX = x;
-            mInitialTouchY = y;
-
             if (!mExpanded) {
                 mViewDelta = statusBarSize - y;
             } else {
@@ -1769,6 +1803,18 @@ public class PhoneStatusBar extends BaseStatusBar {
                            + mNotificationPanelBackgroundPadding.top
                            + mNotificationPanelBackgroundPadding.bottom
                            - y;
+            }
+        }
+
+        brightnessControl(event);
+
+        if ((mDisabled & StatusBarManager.DISABLE_EXPAND) != 0) {
+            return false;
+        }
+
+        if (action == MotionEvent.ACTION_DOWN) {
+            if (!areLightsOn()) {
+                setLightsOn(true);
             }
             if ((!mExpanded && y < hitSize) ||
                     // @@ add taps outside the panel if it's not full-screen
@@ -1792,53 +1838,15 @@ public class PhoneStatusBar extends BaseStatusBar {
                     }
                 }
             }
-            if (mTracking && mBrightnessControl) {
-                mHandler.removeCallbacks(mLongPressBrightnessChange);
-                mHandler.postDelayed(mLongPressBrightnessChange,
-                        BRIGHTNESS_CONTROL_LONG_PRESS_TIMEOUT);
-            }
         } else if (mTracking) {
             trackMovement(event);
             if (action == MotionEvent.ACTION_MOVE) {
-                if (mAnimatingReveal && (y + mViewDelta) < mNotificationPanelMinHeight) {
-                    if (mBrightnessControl) {
-                        mVelocityTracker.computeCurrentVelocity(1000);
-                        float yVel = mVelocityTracker.getYVelocity();
-                        yVel = Math.abs(yVel);
-                        if (yVel < 50.0f) {
-                            if (mLinger > BRIGHTNESS_CONTROL_LINGER_THRESHOLD) {
-                                adjustBrightness(x);
-                            } else {
-                                mLinger++;
-                            }
-                        }
-                        // change brightness
-                        if (mIsStatusBarBrightNess && mIsBrightNessMode == 1) {
-                            doBrightNess(event);
-                        }
-                        int touchSlop = ViewConfiguration.get(mContext).getScaledTouchSlop();
-                        if (Math.abs(x - mInitialTouchX) > touchSlop ||
-                                Math.abs(y - mInitialTouchY) > touchSlop) {
-                            mHandler.removeCallbacks(mLongPressBrightnessChange);
-                        }
-                    }
-                } else {
-                    mHandler.removeCallbacks(mLongPressBrightnessChange);
-                    // remove brightness events from being posted, change mode
-                    if (mIsStatusBarBrightNess) {
-                        stopBrightnessMessages();
-
-                        if (mIsBrightNessMode == 1) {
-                            mIsBrightNessMode = 2;
-                        }
-                    }
+                if (!mAnimatingReveal || (y + mViewDelta) >= mNotificationPanelMinHeight) {
                     mAnimatingReveal = false;
                     updateExpandedViewPos(y + mViewDelta);
                 }
             } else if (action == MotionEvent.ACTION_UP
                     || action == MotionEvent.ACTION_CANCEL) {
-                mHandler.removeCallbacks(mLongPressBrightnessChange);
-                mLinger = 0;
                 mVelocityTracker.computeCurrentVelocity(1000);
 
                 float yVel = mVelocityTracker.getYVelocity();
