@@ -42,8 +42,10 @@ import java.util.ArrayList;
 public class HTCMechaQualcommRIL extends QualcommSharedRIL implements CommandsInterface {
     protected IccHandler mIccHandler;
     protected final int RIL_INT_RADIO_OFF = 0;
-    protected final int RIL_INT_RADIO_UAV = 1;
-    protected final int RIL_INT_RADIO_ON = 13;
+    protected final int RIL_INT_RADIO_UA = 1;
+    protected final int RIL_INT_RADIO_ON = 2;
+    protected final int RIL_INT_RADIO_ON_NG = 10;
+    protected final int RIL_INT_RADIO_ON_HTC = 13;
 
     public HTCMechaQualcommRIL(Context context, int networkMode, int cdmaSubscription) {
         super(context, networkMode, cdmaSubscription);
@@ -217,10 +219,12 @@ public class HTCMechaQualcommRIL extends QualcommSharedRIL implements CommandsIn
                     mIccHandler = null;
                 }
                 break;
-            case RIL_INT_RADIO_UAV:
+            case RIL_INT_RADIO_UA:
                 radioState = CommandsInterface.RadioState.RADIO_UNAVAILABLE;
                 break;
             case RIL_INT_RADIO_ON:
+            case RIL_INT_RADIO_ON_NG:
+            case RIL_INT_RADIO_ON_HTC:
                 if (mIccHandler == null) {
                     handlerThread = new HandlerThread("IccHandler");
                     mIccThread = handlerThread;
