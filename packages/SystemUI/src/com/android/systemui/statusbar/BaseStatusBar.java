@@ -85,6 +85,7 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected static final int MSG_CLOSE_SEARCH_PANEL = 1025;
     protected static final int MSG_SHOW_INTRUDER = 1026;
     protected static final int MSG_HIDE_INTRUDER = 1027;
+    private int mNavRingAmount;
 
     protected static final boolean ENABLE_INTRUDERS = false;
 
@@ -187,11 +188,12 @@ public abstract class BaseStatusBar extends SystemUI implements
         }
     };
 
-    private boolean mShowNotificationCounts;
-
     public void start() {
         mDisplay = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay();
+
+        mNavRingAmount = Settings.System.getInt(mContext.getContentResolver(),
+                         Settings.System.SYSTEMUI_NAVRING_AMOUNT, 1);
 
         mProvisioningObserver.onChange(false); // set up
         mContext.getContentResolver().registerContentObserver(
@@ -205,9 +207,6 @@ public abstract class BaseStatusBar extends SystemUI implements
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));
 
         mStatusBarContainer = new FrameLayout(mContext);
-
-        mShowNotificationCounts = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.STATUS_BAR_NOTIF_COUNT, 0) == 1;
 
         // Connect in to the status bar manager service
         StatusBarIconList iconList = new StatusBarIconList();
@@ -446,8 +445,15 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         // Provide SearchPanel with a temporary parent to allow layout params to work.
         LinearLayout tmpRoot = new LinearLayout(mContext);
+
+        if (mNavRingAmount == 5 || mNavRingAmount == 4) {
+        mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
+                 R.layout.status_bar_search_panel_five, tmpRoot, false);
+        } else {
         mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
                  R.layout.status_bar_search_panel, tmpRoot, false);
+        }
+
         mSearchPanelView.setOnTouchListener(
                  new TouchOutsideListener(MSG_CLOSE_SEARCH_PANEL, mSearchPanelView));
         mSearchPanelView.setVisibility(View.GONE);
@@ -971,5 +977,9 @@ public abstract class BaseStatusBar extends SystemUI implements
     public boolean inKeyguardRestrictedInputMode() {
         KeyguardManager km = (KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE);
         return km.inKeyguardRestrictedInputMode();
+    }
+
+    public boolean isTablet() {
+        return false;
     }
 }

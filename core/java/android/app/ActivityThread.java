@@ -1669,8 +1669,8 @@ public final class ActivityThread {
      *
      * @param assets
      * @param theme
-     * @return true if the AssetManager is now theme-aware; false otherwise.
-     *         This can fail, for example, if the theme package has been been
+     * @return true if the AssetManager is now theme-aware; false otherwise
+     *         this can fail, for example, if the theme package has been
      *         removed and the theme manager has yet to revert formally back to
      *         the framework default.
      */

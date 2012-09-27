@@ -223,7 +223,7 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
             mVolumeLinkNotification = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.VOLUME_LINK_NOTIFICATION, 1) == 1;
             final int overlayStyle = Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.MODE_VOLUME_OVERLAY, VOLUME_OVERLAY_EXPANDABLE);
+                    Settings.System.MODE_VOLUME_OVERLAY, VOLUME_OVERLAY_SINGLE);
             changeOverlayStyle(overlayStyle);
         }
     };
@@ -297,7 +297,7 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
         mVolumeLinkNotification = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.VOLUME_LINK_NOTIFICATION, 1) == 1;
         final int chosenStyle = Settings.System.getInt(context.getContentResolver(),
-                Settings.System.MODE_VOLUME_OVERLAY, VOLUME_OVERLAY_EXPANDABLE);
+                Settings.System.MODE_VOLUME_OVERLAY, VOLUME_OVERLAY_SINGLE);
         changeOverlayStyle(chosenStyle);
 
         context.getContentResolver().registerContentObserver(
@@ -767,7 +767,11 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
     }
 
     protected void onPlaySound(int streamType, int flags) {
-
+        // If preference is no sound - just exit here
+        if (Settings.System.getInt(mContext.getContentResolver(),
+             Settings.System.VOLUME_ADJUST_SOUNDS_ENABLED, 1) == 0) {
+             return;
+        }
         if (hasMessages(MSG_STOP_SOUNDS)) {
             removeMessages(MSG_STOP_SOUNDS);
             // Force stop right now

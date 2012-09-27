@@ -1319,6 +1319,7 @@
   <java-symbol type="layout" name="keyguard_screen_sim_puk_landscape" />
   <java-symbol type="layout" name="keyguard_screen_sim_puk_portrait" />
   <java-symbol type="layout" name="keyguard_screen_tab_unlock" />
+  <java-symbol type="layout" name="keyguard_screen_tab_unlock_six_eight" />
   <java-symbol type="layout" name="keyguard_screen_tab_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_unlock_landscape" />
   <java-symbol type="layout" name="keyguard_screen_unlock_portrait" />
@@ -1450,6 +1451,7 @@
   <java-symbol type="id" name="replace_app_icon" />
   <java-symbol type="id" name="replace_message" />
   <java-symbol type="fraction" name="config_dimBehindFadeDuration" />
+  <java-symbol type="integer" name="config_backKillTimeout" />
   <java-symbol type="integer" name="config_carDockKeepsScreenOn" />
   <java-symbol type="integer" name="config_criticalBatteryWarningLevel" />
   <java-symbol type="integer" name="config_datause_notification_type" />
@@ -3669,28 +3671,24 @@
   <public type="style" name="Widget.DeviceDefault.Light.MediaRouteButton" id="0x010301d8" />
 
 <!-- ===============================================================
-   Resources added in version 10 of CyanogenMod
+   Extra Added Resources
    =============================================================== -->
   <eat-comment />
 
-  <!-- Config.xml entries -->
-  <java-symbol type="string" name="config_legacyUmsLunFile" />
-  <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
   <java-symbol type="array" name="config_telephony_set_audioparameters" />
-  <java-symbol type="bool" name="config_autoBrightnessButtonKeyboard" />
-  <java-symbol type="string" name="config_deviceKeyHandlerLib" />
-  <java-symbol type="string" name="config_deviceKeyHandlerClass" />
+
+  <!-- Config.xml entries -->
   <java-symbol type="integer" name="config_screenOnAnimation" />
   <java-symbol type="integer" name="config_backKillTimeout" />
   <java-symbol type="bool" name="config_screenOffAnimation" />
   <java-symbol type="bool" name="config_hasRotationLockSwitch" />
   <java-symbol type="bool" name="config_hasDockBattery" />
-  <java-symbol type="bool" name="config_noDelayInATwoDP" />
   <java-symbol type="bool" name="config_smsSamsungCdmaAlternateMessageIDEncoding" />
   <java-symbol type="integer" name="config_deviceHardwareKeys" />
   <java-symbol type="bool" name="config_hasRemovableLid" />
   <java-symbol type="bool" name="config_samsung_stk" />
   <java-symbol type="integer" name="config_wallpaperMaxWidth" />
+  <java-symbol type="bool" name="config_noDelayInATwoDP" />
 
   <!-- Notification and battery light -->
   <java-symbol type="bool" name="config_intrusiveBatteryLed" />
@@ -3848,6 +3846,9 @@
   <java-symbol type="string" name="second" />
   <java-symbol type="string" name="seconds" />
 
+  <java-symbol type="string" name="config_deviceKeyHandlerLib" />
+  <java-symbol type="string" name="config_deviceKeyHandlerClass" />
+
   <!-- Lock screen always show battery -->
   <java-symbol type="string" name="lockscreen_discharging" />
 
@@ -3905,6 +3906,22 @@
   <java-symbol type="string" name="symbol_picker_Y" />
   <java-symbol type="string" name="symbol_picker_z" />
   <java-symbol type="string" name="symbol_picker_Z" />
+
+<!-- ===============================================================
+     Extra resources
+     =============================================================== -->
+  <eat-comment />
+
+  <java-symbol type="string" name="config_legacyUmsLunFile" />
+  <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
+  <java-symbol type="bool" name="config_autoBrightnessButtonKeyboard" />
+  
+  <!-- Hide Navbar -->
+  <java-symbol type="layout" name="global_actions_navbar_mode" />
+  <java-symbol type="id" name="navbartoggle" />
+  <java-symbol type="id" name="navbarhome" />
+  <java-symbol type="id" name="navbarback" />
+  <java-symbol type="id" name="navbarmenu" />
 
 <!-- ===============================================================
      AVRCP 1.3 Meta Data Resources

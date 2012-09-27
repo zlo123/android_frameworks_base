@@ -314,7 +314,11 @@ public class GlowPadView extends View {
 
         final ContentResolver resolver = context.getContentResolver();
         boolean vibrateEnabled = Settings.System.getInt(resolver,Settings.System.LOCKSCREEN_VIBRATE_ENABLED, 1) == 1;
-        setVibrateEnabled(vibrateEnabled ? mVibrationDuration > 0 : false);
+        if (vibrateEnabled) {
+            setVibrateEnabled(mVibrationDuration > 0);
+        } else {
+            setVibrateEnabled(false);
+        }
 
         assignDefaultsIfNeeded();
 
@@ -1179,6 +1183,8 @@ public class GlowPadView extends View {
                 return null;
             }
         }
+        // @TODO: Fix Me, very dirty hack.
+        if (mTargetDescriptions.size() <= index) return null;
         return mTargetDescriptions.get(index);
     }
 
@@ -1191,6 +1197,8 @@ public class GlowPadView extends View {
                 return null;
             }
         }
+        // @TODO: Fix me, very dirty hack.
+        if (mDirectionDescriptions.size() <= index) return null;
         return mDirectionDescriptions.get(index);
     }
 

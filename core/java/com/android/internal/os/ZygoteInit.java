@@ -68,7 +68,6 @@ public class ZygoteInit {
     /** when preloading, GC after allocating this many bytes */
     private static final String heapgrowthlimit =
                     SystemProperties.get("dalvik.vm.heapgrowthlimit", "32m");
-
     private static final int PRELOAD_GC_THRESHOLD = Integer.parseInt(
                     heapgrowthlimit.substring(0, heapgrowthlimit.length()-1))*1024*1024/2;
 

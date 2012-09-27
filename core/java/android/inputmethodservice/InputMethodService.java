@@ -248,7 +248,6 @@ public class InputMethodService extends AbstractInputMethodService {
     public static final int IME_VISIBLE = 0x2;
 
     int mVolumeKeyCursorControl = 0;
-
     /**
      * @hide
      */
