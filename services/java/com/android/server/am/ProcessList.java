@@ -108,7 +108,7 @@ class ProcessList {
         // or fetch from the system property
         MemInfoReader mi = new MemInfoReader();
         MAX_HIDDEN_APPS = SystemProperties.getInt("sys.mem.max_hidden_apps",
-                mi.getTotalSize() > 1572864 ? 40 : 15);
+                mi.getTotalSize() > 1572864 ? 60 : 15);
     }
 
     // We put empty content processes after any hidden processes that have
