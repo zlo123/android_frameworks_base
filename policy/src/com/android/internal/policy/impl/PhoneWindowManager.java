@@ -1347,9 +1347,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                  Settings.System.putInt(mContext.getContentResolver(),
                          Settings.System.TABLET_UI, 1);
              }
-         } else {
-          mHasSystemNavBar = true;
-          mNavigationBarCanMove = false;
+         } else { // forced Tablet Mode
+             mHasSystemNavBar = true;
+             mNavigationBarCanMove = false;
+             Settings.System.putInt(mContext.getContentResolver(),
+                  Settings.System.TABLET_UI, 1);
          }
 
          if (!mHasSystemNavBar) {
