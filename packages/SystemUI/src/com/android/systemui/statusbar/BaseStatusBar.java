@@ -196,9 +196,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         mDisplay = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay();
 
-        StatusbarObserver StatusbarObserver = new StatusbarObserver(new Handler());
-        StatusbarObserver.observe();
-
         mTabletui = Settings.System.getBoolean(mContext.getContentResolver(),
                         Settings.System.MODE_TABLET_UI, false);
 
