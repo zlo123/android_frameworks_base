@@ -2562,12 +2562,11 @@ public final class Settings {
          */
         public static final String STATUS_BAR_IME_SWITCHER = "status_bar_ime_switcher";
 
-        /**
+         /**
          * Statusbar State
          * @hide
          */
-        public static final String STATUSBAR_STATE = "statusbar_state";
-
+        public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
 
         /**
          * Whether to use a separate delay for "slide to unlock" and security
@@ -2805,22 +2804,16 @@ public final class Settings {
         public static final String STATUS_BAR_NOTIF_COUNT = "status_bar_notif_count";
 
         /**
-         * Whether power menu reboot is enabled
-         * @hide
-         */
-        public static final String POWER_MENU_REBOOT_ENABLED = "power_menu_reboot_enabled";
-
-        /**
-         * Whether System profiles are enabled
+         * Whether system profiles are enabled
          * @hide
          */
         public static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
 
         /**
-         * Whether power menu screenshot is enabled
+         * Whether power menu airplane mode is enabled
          * @hide
          */
-        public static final String POWER_MENU_SCREENSHOT_ENABLED = "power_menu_screenshot_enabled";
+        public static final String POWER_MENU_AIRPLANE_MODE_ENABLED = "power_menu_airplane_mode_enabled";
 
         /**
          * Whether power menu expanded desktop is enabled
@@ -2829,16 +2822,34 @@ public final class Settings {
         public static final String POWER_MENU_EXPANDED_DESKTOP_ENABLED = "power_menu_expanded_desktop_enabled";
 
         /**
-         * Whether power menu airplane mode is enabled
+         * Whether power menu navigation is enabled
          * @hide
          */
-        public static final String POWER_MENU_AIRPLANEMODE_ENABLED = "power_menu_airplanemode_enabled";
+        public static final String POWER_MENU_NAVIGATION_ENABLED = "power_menu_navigation_enabled";
 
         /**
-         * Whether power menu silent toggle is enabled
+         * Whether power menu profiles is enabled
          * @hide
          */
-        public static final String POWER_MENU_SILENTTOGGLE_ENABLED = "power_menu_silenttoggle_enabled";
+        public static final String POWER_MENU_PROFILES_ENABLED = "power_menu_profiles_enabled";
+
+        /**
+         * Whether power menu reboot is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_REBOOT_ENABLED = "power_menu_reboot_enabled";
+
+        /**
+         * Whether power menu screenshot is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_SCREENSHOT_ENABLED = "power_menu_screenshot_enabled";
+
+        /**
+         * Whether power menu silent mode is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_SILENT_MODE_ENABLED = "power_menu_silent_mode_enabled";
 
         /**
          * Whether to enable custom rebindings of the actions performed on
@@ -3000,7 +3011,13 @@ public final class Settings {
             QUIET_HOURS_STILL,
             QUIET_HOURS_DIM,
             SYSTEM_PROFILES_ENABLED,
+            POWER_MENU_AIRPLANE_MODE_ENABLED,
+            POWER_MENU_EXPANDED_DESKTOP_ENABLED,
+            POWER_MENU_NAVIGATION_ENABLED,
+            POWER_MENU_PROFILES_ENABLED,
+            POWER_MENU_REBOOT_ENABLED,
             POWER_MENU_SCREENSHOT_ENABLED,
+            POWER_MENU_SILENT_MODE_ENABLED,
             LOCKSCREEN_ALWAYS_SHOW_BATTERY,
             LOCKSCREEN_VIBRATE_ENABLED,
         };
@@ -3243,12 +3260,6 @@ public final class Settings {
          *  2 = Phablet UI
          */
         public static final String TABLET_UI = "tablet_ui";
-
-        /**
-         * Show the NavBar dialog in Power menu
-         * @hide
-         */
-        public static final String POWER_DIALOG_SHOW_NAVBAR_HIDE = "power_dialog_show_navbar_hide";
 
         /**
          * @hide

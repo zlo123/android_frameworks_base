@@ -78,7 +78,6 @@ import android.os.IBinder;
 import android.os.Messenger;
 import android.os.RemoteException;
 
-
 /**
  * Helper to show the global actions dialog.  Each item is an {@link Action} that
  * may show depending on whether the keyguard is showing, and whether the device
@@ -101,6 +100,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private Action mSilentModeAction;
     private ToggleAction mAirplaneModeOn;
     private NavBarAction mNavBarHideToggle;
+    private ToggleAction mExpandDesktopModeOn;
 
     private MyAdapter mAdapter;
 
@@ -113,13 +113,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private IWindowManager mIWindowManager;
     private Profile mChosenProfile;
-
-    private static final String POWER_MENU_REBOOT_ENABLED = "power_menu_reboot_enabled";
-    private static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
-    private static final String POWER_MENU_SCREENSHOT_ENABLED = "power_menu_screenshot_enabled";
-    private static final String POWER_MENU_AIRPLANEMODE_ENABLED = "power_menu_airplanemode_enabled";
-    private static final String POWER_MENU_SILENTTOGGLE_ENABLED = "power_menu_silenttoggle_enabled";
-    private static final String POWER_DIALOG_SHOW_NAVBAR_HIDE = "power_dialog_show_navbar_hide";
 
     /**
      * @param context everything needs a context :(
@@ -199,6 +192,27 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
         mNavBarHideToggle = new NavBarAction(mHandler);
 
+        mExpandDesktopModeOn = new ToggleAction(
+                R.drawable.ic_lock_expanded_desktop,
+                R.drawable.ic_lock_expanded_desktop,
+                R.string.global_actions_toggle_expanded_desktop_mode,
+                R.string.global_actions_expanded_desktop_mode_on_status,
+                R.string.global_actions_expanded_desktop_mode_off_status) {
+
+            void onToggle(boolean on) {
+                changeExpandDesktopModeSystemSetting(on);
+            }
+
+            public boolean showDuringKeyguard() {
+                return false;
+            }
+
+            public boolean showBeforeProvisioning() {
+                return false;
+            }
+        };
+        onExpandDesktopModeChanged();
+
         mAirplaneModeOn = new ToggleAction(
                 R.drawable.ic_lock_airplane_mode,
                 R.drawable.ic_lock_airplane_mode_off,
@@ -269,8 +283,10 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 }
             });
 
-        // next: reboot - only shown if enabled, enabled by default
-        if (Settings.System.getInt(mContext.getContentResolver(), POWER_MENU_REBOOT_ENABLED, 1) == 1) {
+        // next: reboot
+        // only shown if enabled, enabled by default
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_REBOOT_ENABLED, 1) == 1) {
             mItems.add(
                 new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
                     public void onPress() {
@@ -292,8 +308,12 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 });
         }
 
-        // next: profile - only shown if enabled, disabled by default
-        if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 0) == 1) {
+        // next: profile
+        // only shown if both system profiles and the menu item is enabled, enabled by default
+        if ((Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.SYSTEM_PROFILES_ENABLED, 1) == 1) &&
+                (Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.POWER_MENU_PROFILES_ENABLED, 1) == 1)) {
             mItems.add(
                 new ProfileChooseAction() {
                     public void onPress() {
@@ -314,8 +334,10 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 });
         }
 
-        // next: screenshot - only shown if enabled, disabled by default
-        if (Settings.System.getInt(mContext.getContentResolver(), POWER_MENU_SCREENSHOT_ENABLED, 0) == 1) {
+        // next: screenshot
+        // only shown if enabled, disabled by default
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_SCREENSHOT_ENABLED, 0) == 1) {
             mItems.add(
                 new SinglePressAction(R.drawable.ic_lock_screenshot, R.string.global_action_screenshot) {
                     public void onPress() {
@@ -332,33 +354,23 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 });
         }
 
-        // next: statusbar toggle
-        // only shown if enabled, enabled by default
+        // next: expanded desktop toggle
+        // only shown if enabled, disabled by default
         if(Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_EXPANDED_DESKTOP_ENABLED, 0) == 1){
-            mItems.add(
-                       new SinglePressAction(R.drawable.ic_lock_statusbar, R.string.global_action_statusbar_status) {
-                public void onPress() {
-                    Settings.System.putInt(mContext.getContentResolver(), Settings.System.STATUSBAR_STATE, Settings.System.getInt(mContext.getContentResolver(), Settings.System.STATUSBAR_STATE, 0) == 1 ? 0 : 1);
-                }
-
-                public boolean showDuringKeyguard() {
-                    return true;
-                }
-
-                public boolean showBeforeProvisioning() {
-                    return true;
-                }
-            });
+                Settings.System.POWER_MENU_EXPANDED_DESKTOP_ENABLED, 0) == 1) {
+            mItems.add(mExpandDesktopModeOn);
         }
 
-        // next: airplane mode - only shown if enabled, enabled by default
-        if (Settings.System.getInt(mContext.getContentResolver(), POWER_MENU_AIRPLANEMODE_ENABLED, 1) == 1) {
+        // next: airplane mode
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_AIRPLANE_MODE_ENABLED, 1) == 1) {
             mItems.add(mAirplaneModeOn);
         }
 
-        // next: navbar hide - only shown if enabled, disabled by default
-        if (Settings.System.getInt(mContext.getContentResolver(), POWER_DIALOG_SHOW_NAVBAR_HIDE, 0) == 1) {
+        // next: navbar hide
+        // only shown if enabled, disabled by default
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_NAVIGATION_ENABLED, 0) == 1) {
             mItems.add(mNavBarHideToggle);
         }
 
@@ -399,8 +411,10 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             }
         }
 
-        // last: silent mode - only shown if enabled, enabled by default
-        if (Settings.System.getInt(mContext.getContentResolver(), POWER_MENU_SILENTTOGGLE_ENABLED, 1) == 1) {
+        // last: silent mode
+        // only shown if enabled, enabled by default
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_SILENT_MODE_ENABLED, 1) == 1) {
             mItems.add(mSilentModeAction);
         }
 
@@ -524,14 +538,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                             }
                         };
                         msg.replyTo = new Messenger(h);
-                        msg.arg1 = msg.arg2 = 0;
-
-                        /*  remove for the time being
-                        if (mStatusBar != null && mStatusBar.isVisibleLw())
-                            msg.arg1 = 1;
-                        if (mNavigationBar != null && mNavigationBar.isVisibleLw())
-                            msg.arg2 = 1;
-                         */                        
+                        msg.arg1 = msg.arg2 = 0;                     
 
                         /* wait for the dialog box to close */
                         try {
@@ -566,7 +573,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
         }
 
-        if (Settings.System.getInt(mContext.getContentResolver(), POWER_MENU_SILENTTOGGLE_ENABLED, 1) == 1) {
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_SILENT_MODE_ENABLED, 1) == 1) {
             IntentFilter filter = new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION);
             mContext.registerReceiver(mRingerModeReceiver, filter);
         }
@@ -583,7 +591,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     /** {@inheritDoc} */
     public void onDismiss(DialogInterface dialog) {
-        if (Settings.System.getInt(mContext.getContentResolver(), POWER_MENU_SILENTTOGGLE_ENABLED, 1) == 1) {
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_SILENT_MODE_ENABLED, 1) == 1) {
             mContext.unregisterReceiver(mRingerModeReceiver);
         }
     }
@@ -839,7 +848,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
          * View.
          */
         void willCreate() {
-
         }
 
         public View create(Context context, View convertView, ViewGroup parent,
@@ -1215,6 +1223,14 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mAirplaneModeOn.updateState(mAirplaneState);
     }
 
+    private void onExpandDesktopModeChanged() {
+        boolean expandDesktopModeOn = Settings.System.getInt(
+                mContext.getContentResolver(),
+                Settings.System.EXPANDED_DESKTOP_STATE,
+                0) == 1;
+        mExpandDesktopModeOn.updateState(expandDesktopModeOn ? ToggleAction.State.On : ToggleAction.State.Off);
+    }
+
     /**
      * Change the airplane mode system setting
      */
@@ -1232,6 +1248,16 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
     }
 
+    /**
+     * Change the expand desktop mode system setting
+     */
+    private void changeExpandDesktopModeSystemSetting(boolean on) {
+        Settings.System.putInt(
+                mContext.getContentResolver(),
+                Settings.System.EXPANDED_DESKTOP_STATE,
+                on ? 1 : 0);
+    }
+
     private IWindowManager getWindowManager() {
         if (mIWindowManager == null) {
             IBinder b = ServiceManager.getService(Context.WINDOW_SERVICE);
@@ -1240,3 +1266,4 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         return mIWindowManager;
     }
 }
+
