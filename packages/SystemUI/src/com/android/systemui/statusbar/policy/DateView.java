@@ -20,18 +20,24 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.text.TextUtils.TruncateAt;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
+import android.util.Slog;
 import android.view.View;
 import android.view.ViewParent;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.systemui.R;
 
 import java.util.Date;
 
-public final class DateView extends TextView {
+public final class DateView extends LinearLayout {
     private static final String TAG = "DateView";
+
+    private TextView mDoW;
+    private TextView mDate;
 
     private boolean mAttachedToWindow;
     private boolean mWindowVisible;
@@ -43,7 +49,8 @@ public final class DateView extends TextView {
             final String action = intent.getAction();
             if (Intent.ACTION_TIME_TICK.equals(action)
                     || Intent.ACTION_TIME_CHANGED.equals(action)
-                    || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
+                    || Intent.ACTION_TIMEZONE_CHANGED.equals(action)
+                    || Intent.ACTION_LOCALE_CHANGED.equals(action)) {
                 updateClock();
             }
         }
@@ -128,7 +135,16 @@ public final class DateView extends TextView {
         Date now = new Date();
         CharSequence dow = DateFormat.format("EEEE", now);
         CharSequence date = DateFormat.getLongDateFormat(context).format(now);
-        setText(context.getString(R.string.status_bar_date_formatter, dow, date));
+        mDoW.setText(dow);
+        mDate.setText(date);
+    }
+
+    public final TextView getDoW() {
+        return mDoW;
+    }
+
+    public final TextView getDate() {
+        return mDate;
     }
 
     private boolean isVisible() {
@@ -156,6 +172,7 @@ public final class DateView extends TextView {
                 filter.addAction(Intent.ACTION_TIME_TICK);
                 filter.addAction(Intent.ACTION_TIME_CHANGED);
                 filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+                filter.addAction(Intent.ACTION_LOCALE_CHANGED);
                 mContext.registerReceiver(mIntentReceiver, filter, null, null);
                 updateClock();
             } else {
