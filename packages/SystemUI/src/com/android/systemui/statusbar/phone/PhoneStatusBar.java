@@ -2525,11 +2525,9 @@ public class PhoneStatusBar extends BaseStatusBar {
             } catch (IOException e) {
                 // we're screwed here fellas
             }
-<<<<<<< HEAD
-=======
+
             setStatusBarParams(mStatusBarView);
             setNavigationBarParams();
->>>>>>> d9736ce... NavBar transparency (1/2)
         } else {
 
             if (mClearButton instanceof TextView) {
