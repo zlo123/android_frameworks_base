@@ -43,7 +43,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.os.storage.StorageManager
+import android.os.storage.StorageManager;
 import android.text.TextUtils;
 import android.util.Slog;
 import android.view.Display;
