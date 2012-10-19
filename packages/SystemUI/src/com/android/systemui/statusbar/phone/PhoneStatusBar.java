@@ -2526,7 +2526,6 @@ public class PhoneStatusBar extends BaseStatusBar {
                 // we're screwed here fellas
             }
 
-            setStatusBarParams(mStatusBarView);
             setNavigationBarParams();
         } else {
 
@@ -2695,19 +2694,11 @@ public class PhoneStatusBar extends BaseStatusBar {
                     Settings.System.EXPANDED_VIEW_WIDGET), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NAV_BAR_TRANSPARENCY), false, this);
-            update();
         }
 
         @Override
         public void onChange(boolean selfChange) {
             updateSettings();
-            update();
-        }
-
-        public void update() {
-            ContentResolver resolver = mContext.getContentResolver();
-            setStatusBarParams(mStatusBarView);
-            setNavigationBarParams();
         }
     }
 
