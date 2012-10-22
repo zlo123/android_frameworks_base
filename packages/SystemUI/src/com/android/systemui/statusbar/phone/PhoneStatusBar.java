@@ -767,12 +767,6 @@ public class PhoneStatusBar extends BaseStatusBar {
         updateSearchPanel();
     }
 
-    protected void setNavigationBarParams(){
-        int opacity = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.NAV_BAR_TRANSPARENCY, 100);
-        mNavigationBarView.getBackground().setAlpha(Math.round((opacity * 255) / 100));
-    }
-
     // For small-screen devices (read: phones) that lack hardware navigation buttons
     private void addNavigationBar() {
         if (DEBUG) Slog.v(TAG, "addNavigationBar: about to add " + mNavigationBarView);
@@ -2525,8 +2519,6 @@ public class PhoneStatusBar extends BaseStatusBar {
             } catch (IOException e) {
                 // we're screwed here fellas
             }
-
-            setNavigationBarParams();
         } else {
 
             if (mClearButton instanceof TextView) {
@@ -2692,8 +2684,6 @@ public class PhoneStatusBar extends BaseStatusBar {
                     Settings.System.SCREEN_BRIGHTNESS_MODE), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.EXPANDED_VIEW_WIDGET), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.NAV_BAR_TRANSPARENCY), false, this);
         }
 
         @Override
