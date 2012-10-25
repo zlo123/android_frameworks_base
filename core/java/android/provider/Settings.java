@@ -2640,7 +2640,22 @@ public final class Settings {
         public static final String QUIET_HOURS_ENABLED = "quiet_hours_enabled";
 
         /**
+<<<<<<< HEAD
          * Sets when quiet hours starts. This is stored in minutes from the start of the day.
+=======
+         *
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_WIDTH_PORT = "navigation_bar_width_port";
+
+        /**
+         *
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_WIDTH_LAND = "navigation_bar_width_land";
+
+         /**
+>>>>>>> 2191d24... NavBar: Tablet Nav bar adjustable width
          * @hide
          */
         public static final String QUIET_HOURS_START = "quiet_hours_start";
