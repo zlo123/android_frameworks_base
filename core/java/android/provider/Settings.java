@@ -3629,11 +3629,6 @@ public final class Settings {
         /**
          * @hide
          */
-        public static final String STATUS_BAR_BRIGHTNESS_SLIDER = "statusbar_brightness_slider";
-
-        /**
-         * @hide
-         */
         public static final String STATUSBAR_TOGGLES = "statusbar_toggles";
 
         /**
