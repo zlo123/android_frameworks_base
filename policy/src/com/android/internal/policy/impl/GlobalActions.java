@@ -258,6 +258,20 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
         mItems = new ArrayList<Action>();
 
+        // next: airplane mode
+        // only shown if enabled, disabled by default
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_AIRPLANE_MODE_ENABLED, 0) == 1) {
+            mItems.add(mAirplaneModeOn);
+        }
+
+        // next: expanded desktop
+        // only shown if enabled, disabled by default
+        if(Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_EXPANDED_DESKTOP_ENABLED, 0) == 1) {
+            mItems.add(mExpandDesktopModeOn);
+        }
+
         // first: power off
         mItems.add(
             new SinglePressAction(
@@ -308,7 +322,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 });
         }
 
-        // next: profile
+        // next: profiles
         // only shown if both system profiles and the menu item is enabled, enabled by default
         if ((Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.SYSTEM_PROFILES_ENABLED, 1) == 1) &&
@@ -335,9 +349,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
 
         // next: screenshot
-        // only shown if enabled, disabled by default
+        // only shown if enabled, enabled by default
         if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_SCREENSHOT_ENABLED, 0) == 1) {
+                Settings.System.POWER_MENU_SCREENSHOT_ENABLED, 1) == 1) {
             mItems.add(
                 new SinglePressAction(R.drawable.ic_lock_screenshot, R.string.global_action_screenshot) {
                     public void onPress() {
@@ -354,20 +368,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 });
         }
 
-        // next: expanded desktop toggle
-        // only shown if enabled, disabled by default
-        if(Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_EXPANDED_DESKTOP_ENABLED, 0) == 1) {
-            mItems.add(mExpandDesktopModeOn);
-        }
-
-        // next: airplane mode
-        if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_AIRPLANE_MODE_ENABLED, 1) == 1) {
-            mItems.add(mAirplaneModeOn);
-        }
-
-        // next: navbar hide
+        // next: navigation
         // only shown if enabled, disabled by default
         if (Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWER_MENU_NAVIGATION_ENABLED, 0) == 1) {
