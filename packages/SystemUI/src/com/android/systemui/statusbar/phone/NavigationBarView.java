@@ -107,12 +107,8 @@ public class NavigationBarView extends LinearLayout {
 
     private Drawable mBackIcon, mBackLandIcon, mBackAltIcon, mBackAltLandIcon;
     
-<<<<<<< HEAD
-    private DelegateViewHelper mDelegateHelper;
-    private Context mContext;
-=======
     public DelegateViewHelper mDelegateHelper;
->>>>>>> 4516c97... Lefty Mode for NavBar (1 of 2)
+    private Context mContext;
 
     // workaround for LayoutTransitions leaving the nav buttons in a weird state (bug 5549288)
     final static boolean WORKAROUND_INVALID_LAYOUT = true;
@@ -324,16 +320,10 @@ public class NavigationBarView extends LinearLayout {
                         mLongpressActions[j],
                         mPortraitIcons[j]);
                 v.setTag((landscape ? "key_land_" : "key_") + j);
-<<<<<<< HEAD
-                addButton(navButtonLayout, v, landscape);
-                addLightsOutButton(lightsOut, v, landscape, false);
-
-=======
                 addButton(navButtonLayout, v, landscape && !mLeftyMode);
                 // if we are in LeftyMode, then we want to add to end, like Portrait
                 addLightsOutButton(lightsOut, v, landscape && !mLeftyMode, false);
                 
->>>>>>> 4516c97... Lefty Mode for NavBar (1 of 2)
                 if (v.getId() == R.id.back){
                   mBackIcon = mBackLandIcon = v.getDrawable();
                 }
