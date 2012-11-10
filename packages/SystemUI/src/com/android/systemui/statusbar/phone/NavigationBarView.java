@@ -990,4 +990,13 @@ public class NavigationBarView extends LinearLayout {
     private void postCheckForInvalidLayout(final String how) {
         mHandler.obtainMessage(MSG_CHECK_INVALID_LAYOUT, 0, 0, how).sendToTarget();
     }
+
+    private void updateColor() {
+        int color = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.SYSTEMUI_NAVBAR_COLOR,
+                Settings.System.SYSTEMUI_NAVBAR_COLOR_DEF);
+        float alpha = Color.alpha(color);
+        this.setBackground(new ColorDrawable(color));
+        this.setAlpha(alpha);
+    }
 }
