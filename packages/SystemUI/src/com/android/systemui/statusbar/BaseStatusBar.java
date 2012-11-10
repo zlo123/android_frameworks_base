@@ -90,7 +90,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected static final int MSG_SHOW_INTRUDER = 1026;
     protected static final int MSG_HIDE_INTRUDER = 1027;
     private boolean mTabletui;
-    private boolean mLefty;
 
     private WidgetView mWidgetView;
 
@@ -201,9 +200,6 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         mTabletui = Settings.System.getBoolean(mContext.getContentResolver(),
                         Settings.System.MODE_TABLET_UI, false);
-
-        mLefty = (Settings.System.getBoolean(mContext.getContentResolver(),
-                Settings.System.NAVIGATION_BAR_LEFTY_MODE, false));
 
         mProvisioningObserver.onChange(false); // set up
         mContext.getContentResolver().registerContentObserver(
@@ -457,16 +453,25 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         // Provide SearchPanel with a temporary parent to allow layout params to work.
         LinearLayout tmpRoot = new LinearLayout(mContext);
-        if (mTabletui) {
-           mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
-                        mLefty ? R.layout.status_bar_search_panel_lefty_tablet :
-                            R.layout.status_bar_search_panel_tablet, tmpRoot, false);
+
+        if ((screenLayout() == Configuration.SCREENLAYOUT_SIZE_XLARGE) || ((screenLayout() == Configuration.SCREENLAYOUT_SIZE_LARGE) && mTabletui)) {
+             if (mNavRingAmount == 5 || mNavRingAmount == 4) {
+                 mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
+                                     R.layout.status_bar_search_panel_left_five, tmpRoot, false);
+             } else {
+                 mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
+                                     R.layout.status_bar_search_panel_left, tmpRoot, false);
+             }
         } else {
-            // This is Phone or Phablet
-           mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
-                        mLefty ? R.layout.status_bar_search_panel_lefty :
-                            R.layout.status_bar_search_panel, tmpRoot, false);
+             if (mNavRingAmount == 5 || mNavRingAmount == 4) {
+                 mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
+                                     R.layout.status_bar_search_panel_five, tmpRoot, false);
+             } else {
+                 mSearchPanelView = (SearchPanelView) LayoutInflater.from(mContext).inflate(
+                                     R.layout.status_bar_search_panel, tmpRoot, false);
+             }
         }
+
         mSearchPanelView.setOnTouchListener(
                  new TouchOutsideListener(MSG_CLOSE_SEARCH_PANEL, mSearchPanelView));
         mSearchPanelView.setVisibility(View.GONE);
