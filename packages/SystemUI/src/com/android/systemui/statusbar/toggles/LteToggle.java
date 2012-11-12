@@ -39,7 +39,6 @@ public class LteToggle extends Toggle {
         obs.observe();
         setLabel(R.string.toggle_lte);
         updateState();
-
     }
 
     @Override
@@ -58,8 +57,7 @@ public class LteToggle extends Toggle {
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.Secure
-                    .getUriFor(Settings.Secure.PREFERRED_NETWORK_MODE), false,
-                    this);
+                    .getUriFor(Settings.Secure.PREFERRED_NETWORK_MODE), false, this);
             updateState();
         }
 
@@ -90,8 +88,10 @@ public class LteToggle extends Toggle {
         mNetworkMode = getCurrentPreferredNetworkMode(mContext);
         if (mToggle != null)
             switch(mNetworkMode) {
-                case Phone.NT_MODE_LTE_CDMA_EVDO:
                 case Phone.NT_MODE_GLOBAL:
+                case Phone.NT_MODE_LTE_CDMA_EVDO:
+                case Phone.NT_MODE_LTE_GSM_WCDMA:
+                case Phone.NT_MODE_LTE_ONLY:
                     mToggle.setChecked(true);
                     break;
                 default:

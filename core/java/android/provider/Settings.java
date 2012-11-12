@@ -983,7 +983,7 @@ public final class Settings {
          * with that name.  Note that internally setting values are always
          * stored as strings, so this function converts the given value to a
          * string (1 or 0) before storing it.
-         * 
+         *
          * @param cr The ContentResolver to access.
          * @param name The name of the setting to modify.
          * @param value The new value for the setting.
@@ -1361,6 +1361,23 @@ public final class Settings {
          */
         public static final String WIFI_STATIC_DNS2 = "wifi_static_dns2";
 
+        /**
+         * Allows automatic retrieval of mms contents
+         * <p>Type: INT</p>
+         * 0 -- false
+         * 1 -- true
+         * @hide
+         */
+        public static final String MMS_AUTO_RETRIEVAL = "mms_auto_retrieval";
+
+        /**
+         * Allows automatic retrieval of mms contents during roaming
+         * <p>Type: INT</p>
+         * 0 -- false
+         * 1 -- true
+         * @hide
+         */
+        public static final String MMS_AUTO_RETRIEVAL_ON_ROAMING = "mms_auto_on_roaming";
 
         /**
          * Determines whether remote devices may discover and/or connect to
@@ -2119,6 +2136,12 @@ public final class Settings {
         public static final String HAPTIC_FEEDBACK_ENABLED = "haptic_feedback_enabled";
 
         /**
+         * Whether the haptic feedback are enabled for statusbar toggles. The value is
+         * boolean (1 or 0).
+         */
+        public static final String HAPTIC_FEEDBACK_TOGGLES_ENABLED = "haptic_feedback_toggles_enabled";
+
+        /**
          * @deprecated Each application that shows web suggestions should have its own
          * setting for this.
          */
@@ -2447,13 +2470,7 @@ public final class Settings {
         public static final String WIDGET_BUTTONS_TABLET = "expanded_widget_buttons_tablet";
 
         /**
-         * Navigation bar transparency value
-         * from 0% to 100%
-         * @hide
-         */
-        public static final String NAV_BAR_TRANSPARENCY = "nav_bar_transparency";
 
-        /**
          * Navigation controls to Use
          *
          * @hide
@@ -2562,12 +2579,11 @@ public final class Settings {
          */
         public static final String STATUS_BAR_IME_SWITCHER = "status_bar_ime_switcher";
 
-        /**
+         /**
          * Statusbar State
          * @hide
          */
-        public static final String STATUSBAR_STATE = "statusbar_state";
-
+        public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
 
         /**
          * Whether to use a separate delay for "slide to unlock" and security
@@ -2608,6 +2624,12 @@ public final class Settings {
          * @hide
          */
         public static final String MENU_UNLOCK_SCREEN = "menu_unlock_screen";
+
+        /**
+         * Whether to unlock the screen with the home key.  The value is boolean (1 or 0).
+         * @hide
+         */
+        public static final String HOME_UNLOCK_SCREEN = "home_unlock_screen";
 
         /**
          * Whether to wake the screen with the volume keys, the value is boolean.
@@ -2652,6 +2674,7 @@ public final class Settings {
         public static final String QUIET_HOURS_MUTE = "quiet_hours_mute";
 
         /**
+         *
          * Whether to disable haptic feedback during quiet hours.
          * @hide
          */
@@ -2754,6 +2777,21 @@ public final class Settings {
         public static final String LOCKSCREEN_CALENDARS = "lockscreen_calendars";
 
         /**
+         * @hide
+         */
+        public static final String STATUSBAR_SETTINGS_BEHAVIOR = "statusbar_settings_behavior";
+
+        /**
+         * @hide
+         */
+        public static final String STATUSBAR_TOGGLES_AUTOHIDE = "statusbar_toggles_autohide";
+
+        /**
+         * @hide
+         */
+        public static final String STATUS_BAR_BRIGHTNESS_SLIDER = "statusbar_brightness_slider";
+
+        /**
          * How far in the future to look for events
          * @hide
          */
@@ -2778,28 +2816,40 @@ public final class Settings {
         public static final String LOCKSCREEN_CLOCK_ALIGN = "lockscreen_clock_align";
 
         /**
+         * Action for long-pressing back button on lock screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_LONG_BACK_ACTION = "lockscreen_long_back_action";
+
+        /**
+         * Action for long-pressing home button on lock screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_LONG_HOME_ACTION = "lockscreen_long_home_action";
+
+        /**
+         * Action for long-pressing menu button on lock screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_LONG_MENU_ACTION = "lockscreen_long_menu_action";
+
+        /**
          * Show the pending notification counts as overlays on the status bar
          * @hide
          */
         public static final String STATUS_BAR_NOTIF_COUNT = "status_bar_notif_count";
 
         /**
-         * Whether power menu reboot is enabled
-         * @hide
-         */
-        public static final String POWER_MENU_REBOOT_ENABLED = "power_menu_reboot_enabled";
-
-        /**
-         * Whether System profiles are enabled
+         * Whether system profiles are enabled
          * @hide
          */
         public static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
 
         /**
-         * Whether power menu screenshot is enabled
+         * Whether power menu airplane mode is enabled
          * @hide
          */
-        public static final String POWER_MENU_SCREENSHOT_ENABLED = "power_menu_screenshot_enabled";
+        public static final String POWER_MENU_AIRPLANE_MODE_ENABLED = "power_menu_airplane_mode_enabled";
 
         /**
          * Whether power menu expanded desktop is enabled
@@ -2808,16 +2858,34 @@ public final class Settings {
         public static final String POWER_MENU_EXPANDED_DESKTOP_ENABLED = "power_menu_expanded_desktop_enabled";
 
         /**
-         * Whether power menu airplane mode is enabled
+         * Whether power menu navigation is enabled
          * @hide
          */
-        public static final String POWER_MENU_AIRPLANEMODE_ENABLED = "power_menu_airplanemode_enabled";
+        public static final String POWER_MENU_NAVIGATION_ENABLED = "power_menu_navigation_enabled";
 
         /**
-         * Whether power menu silent toggle is enabled
+         * Whether power menu profiles is enabled
          * @hide
          */
-        public static final String POWER_MENU_SILENTTOGGLE_ENABLED = "power_menu_silenttoggle_enabled";
+        public static final String POWER_MENU_PROFILES_ENABLED = "power_menu_profiles_enabled";
+
+        /**
+         * Whether power menu reboot is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_REBOOT_ENABLED = "power_menu_reboot_enabled";
+
+        /**
+         * Whether power menu screenshot is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_SCREENSHOT_ENABLED = "power_menu_screenshot_enabled";
+
+        /**
+         * Whether power menu silent mode is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_SILENT_MODE_ENABLED = "power_menu_silent_mode_enabled";
 
         /**
          * Whether to enable custom rebindings of the actions performed on
@@ -2916,6 +2984,8 @@ public final class Settings {
             WIFI_STATIC_NETMASK,
             WIFI_STATIC_DNS1,
             WIFI_STATIC_DNS2,
+            MMS_AUTO_RETRIEVAL,
+            MMS_AUTO_RETRIEVAL_ON_ROAMING,
             BLUETOOTH_DISCOVERABILITY,
             BLUETOOTH_DISCOVERABILITY_TIMEOUT,
             DIM_SCREEN,
@@ -2979,7 +3049,13 @@ public final class Settings {
             QUIET_HOURS_STILL,
             QUIET_HOURS_DIM,
             SYSTEM_PROFILES_ENABLED,
+            POWER_MENU_AIRPLANE_MODE_ENABLED,
+            POWER_MENU_EXPANDED_DESKTOP_ENABLED,
+            POWER_MENU_NAVIGATION_ENABLED,
+            POWER_MENU_PROFILES_ENABLED,
+            POWER_MENU_REBOOT_ENABLED,
             POWER_MENU_SCREENSHOT_ENABLED,
+            POWER_MENU_SILENT_MODE_ENABLED,
             LOCKSCREEN_ALWAYS_SHOW_BATTERY,
             LOCKSCREEN_VIBRATE_ENABLED,
         };
@@ -3224,12 +3300,6 @@ public final class Settings {
         public static final String TABLET_UI = "tablet_ui";
 
         /**
-         * Show the NavBar dialog in Power menu
-         * @hide
-         */
-        public static final String POWER_DIALOG_SHOW_NAVBAR_HIDE = "power_dialog_show_navbar_hide";
-
-        /**
          * @hide
          */
         public static final String NAVIGATION_BAR_SHOW = "navigation_bar_show";
@@ -3283,6 +3353,12 @@ public final class Settings {
          * @hide
          */
         public static final String NAVIGATION_BAR_WIDTH = "navigation_bar_width";
+
+        /**
+	 * Display NavBar on left side of screen (Boolean)
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_LEFTY_MODE = "navigation_bar_lefty_mode";
 
         /**
          * @hide
@@ -3521,6 +3597,36 @@ public final class Settings {
          */
         public static final String SYSTEMUI_NAVRING_5 = "systemui_navring_5";
 
+         /**
+         * @hide
+         */
+        public static final String SYSTEMUI_NAVRING_LONG_1 = "systemui_navring_long_1";
+
+        /**
+         * @hide
+         */
+        public static final String SYSTEMUI_NAVRING_LONG_2 = "systemui_navring_long_2";
+
+        /**
+         * @hide
+         */
+        public static final String SYSTEMUI_NAVRING_LONG_3 = "systemui_navring_long_3";
+
+        /**
+         * @hide
+         */
+        public static final String SYSTEMUI_NAVRING_LONG_4 = "systemui_navring_long_4";
+
+        /**
+         * @hide
+         */
+        public static final String SYSTEMUI_NAVRING_LONG_5 = "systemui_navring_long_5";
+
+        /**
+         * @hide
+         */
+        public static final String SYSTEMUI_NAVRING_LONG_ENABLE = "systemui_navring_long_enable";
+
         /**
          * @hide
          */
@@ -3596,11 +3702,6 @@ public final class Settings {
         /**
          * @hide
          */
-        public static final String STATUS_BAR_BRIGHTNESS_SLIDER = "statusbar_brightness_slider";
-
-        /**
-         * @hide
-         */
         public static final String STATUSBAR_TOGGLES = "statusbar_toggles";
 
         /**
@@ -3629,6 +3730,13 @@ public final class Settings {
          * @hide
          */
         public static final String RECENT_KILL_ALL_BUTTON = "recent_kill_all_button";
+
+        /**
+         * whether to hide the Ram Usage Bar on recent switcher
+         *
+         * @hide
+         */
+        public static final String RAM_USAGE_BAR = "ram_usage_bar";
 
         /**
          * whether to enable end app on back longpress functionality
