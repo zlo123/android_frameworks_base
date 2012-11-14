@@ -2133,8 +2133,7 @@ public class RIL extends BaseCommands implements CommandsInterface {
             case 7:
             case 8:
             case 9:
-            case 10:
-            case 13: state = RadioState.RADIO_ON; break;
+            case 10: state = RadioState.RADIO_ON; break;
 
             default:
                 throw new RuntimeException(
@@ -3365,6 +3364,10 @@ public class RIL extends BaseCommands implements CommandsInterface {
        // Determine the radio access type
        String radioString = SystemProperties.get(
                TelephonyProperties.PROPERTY_DATA_NETWORK_TYPE, "unknown");
+       if (radioString.contains(":")) {
+           String[] parts = radioString.split(":");
+           radioString = parts[0];
+       }
        int radioType;
        if (radioString.equals("GPRS")) {
            radioType = NETWORK_TYPE_GPRS;

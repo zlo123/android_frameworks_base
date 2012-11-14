@@ -21,7 +21,6 @@ import static com.android.internal.telephony.RILConstants.*;
 
 import android.content.Context;
 import android.os.AsyncResult;
-import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
@@ -32,18 +31,17 @@ import android.util.Log;
 import java.util.ArrayList;
 
 /**
- * Qualcomm RIL class for basebands that do not send the CSIM status
+ * Qualcomm RIL class for basebands that do not send the SIM status
  * piggybacked in RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED. Instead,
- * these radios will send radio state and we have to query for CSIM
- * Custom Qualcomm CSIM/RUIM Ready RIL for HTC Mecha (ThunderBolt)
+ * these radios will send radio state and we have to query for SIM
+ * Custom Qualcomm SIM/RUIM Ready RIL for HTC Mecha (ThunderBolt)
  *
  * {@hide}
  */
 public class HTCMechaQualcommRIL extends QualcommSharedRIL implements CommandsInterface {
-    protected IccHandler mIccHandler;
-    protected final int RIL_INT_RADIO_NA = 0;
-    protected final int RIL_INT_RADIO_UA = 1;
-    protected final int RIL_INT_RADIO_ON = 13;
+    private final int RIL_INT_RADIO_OFF = 0;
+    private final int RIL_INT_RADIO_UA = 1;
+    private final int RIL_INT_RADIO_ON = 13;
 
     public HTCMechaQualcommRIL(Context context, int networkMode, int cdmaSubscription) {
         super(context, networkMode, cdmaSubscription);
@@ -57,7 +55,6 @@ public class HTCMechaQualcommRIL extends QualcommSharedRIL implements CommandsIn
         //       but this request is also valid for SIM and RUIM
         String IccAid;
         RILRequest rr = RILRequest.obtain(RIL_REQUEST_SIM_IO, result);
-
         IccCardStatus status = new IccCardStatus();
 
         if (path != null) {
@@ -97,6 +94,8 @@ public class HTCMechaQualcommRIL extends QualcommSharedRIL implements CommandsIn
     responseIccCardStatus(Parcel p) {
         IccCardApplication ca;
 
+        boolean subscriptionFromSource = needsOldRilFeature("subscriptionFromSource");
+
         IccCardStatus status = new IccCardStatus();
         status.setCardState(p.readInt());
         status.setUniversalPinState(p.readInt());
@@ -116,6 +115,13 @@ public class HTCMechaQualcommRIL extends QualcommSharedRIL implements CommandsIn
             ca.app_type       = ca.AppTypeFromRILInt(p.readInt());
             ca.app_state      = ca.AppStateFromRILInt(p.readInt());
             ca.perso_substate = ca.PersoSubstateFromRILInt(p.readInt());
+            if ((ca.app_state == IccCardApplication.AppState.APPSTATE_SUBSCRIPTION_PERSO) &&
+                ((ca.perso_substate == IccCardApplication.PersoSubState.PERSOSUBSTATE_READY) ||
+                (ca.perso_substate == IccCardApplication.PersoSubState.PERSOSUBSTATE_UNKNOWN))) {
+                ca.app_state = IccCardApplication.AppState.APPSTATE_UNKNOWN;
+                Log.d(LOG_TAG, "ca.app_state == AppState.APPSTATE_SUBSCRIPTION_PERSO");
+                Log.d(LOG_TAG, "ca.perso_substate == PersoSubState.PERSOSUBSTATE_READY");
+            }
             ca.aid            = p.readString();
             ca.app_label      = p.readString();
             ca.pin1_replaced  = p.readInt();
@@ -124,7 +130,27 @@ public class HTCMechaQualcommRIL extends QualcommSharedRIL implements CommandsIn
             status.addApplication(ca);
         }
 
-        mAid = status.getApplication(status.getGsmUmtsSubscriptionAppIndex()).aid;
+        if (subscriptionFromSource)
+            return status;
+
+        int appIndex = -1;
+        if (mPhoneType == RILConstants.CDMA_PHONE && !skipCdmaSubcription) {
+            appIndex = status.getCdmaSubscriptionAppIndex();
+            Log.d(LOG_TAG, "This is a CDMA PHONE " + appIndex);
+        } else {
+            appIndex = status.getGsmUmtsSubscriptionAppIndex();
+            Log.d(LOG_TAG, "This is a GSM PHONE " + appIndex);
+        }
+
+        if (numApplications > 0) {
+            IccCardApplication application = status.getApplication(appIndex);
+            mAid = application.aid;
+            mSetPreferredNetworkType = mPreferredNetworkType;
+            mUSIM = application.app_type == IccCardApplication.AppType.APPTYPE_USIM;
+
+            if (TextUtils.isEmpty(mAid))
+                mAid = "";
+        }
 
         return status;
     }
@@ -203,14 +229,14 @@ public class HTCMechaQualcommRIL extends QualcommSharedRIL implements CommandsIn
          }
     }
 
-    protected void setRadioStateFromRILInt (int stateCode) {
+    private void setRadioStateFromRILInt(int stateCode) {
         CommandsInterface.RadioState radioState;
         HandlerThread handlerThread;
         IccHandler iccHandler;
         Looper looper;
 
         switch (stateCode) {
-            case RIL_INT_RADIO_NA:
+            case RIL_INT_RADIO_OFF:
                 radioState = CommandsInterface.RadioState.RADIO_OFF;
                 if (mIccHandler != null) {
                     mIccThread = null;
@@ -230,105 +256,12 @@ public class HTCMechaQualcommRIL extends QualcommSharedRIL implements CommandsIn
                     mIccHandler = new IccHandler(this,looper);
                     mIccHandler.run();
                 }
-		        radioState = CommandsInterface.RadioState.RADIO_ON;
+                radioState = CommandsInterface.RadioState.RADIO_ON;
                 break;
             default:
                 throw new RuntimeException("Unrecognized RIL_RadioState: " + stateCode);
         }
 
         setRadioState(radioState);
-    }
-
-    class IccHandler extends Handler implements Runnable {
-        private static final int EVENT_RADIO_ON = 1;
-        private static final int EVENT_ICC_STATUS_CHANGED = 2;
-        private static final int EVENT_GET_ICC_STATUS_DONE = 3;
-        private static final int EVENT_RADIO_OFF_OR_UNAVAILABLE = 4;
-
-        private RIL mRil;
-        private boolean mRadioOn = false;
-
-        public IccHandler (RIL ril, Looper looper) {
-            super (looper);
-            mRil = ril;
-        }
-
-        public void handleMessage (Message paramMessage) {
-            switch (paramMessage.what) {
-                case EVENT_RADIO_ON:
-                    mRadioOn = true;
-                    Log.d(LOG_TAG, "Radio On -> Forcing Sim Status Update");
-                    sendMessage(obtainMessage(EVENT_ICC_STATUS_CHANGED));
-                    break;
-                case EVENT_GET_ICC_STATUS_DONE:
-                    AsyncResult asyncResult = (AsyncResult) paramMessage.obj;
-                    if (asyncResult.exception != null) {
-                        Log.e(LOG_TAG, "IccCardStatusDone Should NOT Return Exceptions!", asyncResult.exception);
-                        break;
-                    }
-                    IccCardStatus status = (IccCardStatus) asyncResult.result;
-                    if (status.getNumApplications() == 0) {
-                        if (!mRil.getRadioState().isOn()) {
-                            break;
-                        }
-			            mRil.setRadioState(CommandsInterface.RadioState.RADIO_ON);
-                    } else {
-                        int appIndex = -1;
-                        appIndex = status.getGsmUmtsSubscriptionAppIndex();
-                        IccCardApplication application = status.getApplication(appIndex);
-                        IccCardApplication.AppState app_state = application.app_state;
-                        IccCardApplication.AppType app_type = application.app_type;
-
-                        switch (app_state) {
-                            case APPSTATE_PIN:
-                            case APPSTATE_PUK:
-                                switch (app_type) {
-                                    case APPTYPE_CSIM:
-                                    case APPTYPE_RUIM:
-					                    mRil.setRadioState(CommandsInterface.RadioState.RADIO_ON);
-                                        break;
-                                    default:
-                                        Log.e(LOG_TAG, "We DO NOT Handle ICC Of Type: " + app_type);
-                                        return;
-                                }
-                                break;
-                            case APPSTATE_READY:
-                                switch (app_type) {
-                                    case APPTYPE_CSIM:
-                                    case APPTYPE_RUIM:
-					                    mRil.setRadioState(CommandsInterface.RadioState.RADIO_ON);
-                                        break;
-                                    default:
-                                        Log.e(LOG_TAG, "We DO NOT Handle ICC Of Type: " + app_type);
-                                        return;
-                                }
-                                break;
-                            default:
-                                return;
-                        }
-                    }
-                    break;
-                case EVENT_ICC_STATUS_CHANGED:
-                    if (mRadioOn) {
-                        Log.d(LOG_TAG, "Received EVENT_ICC_STATUS_CHANGED, GetIccCardStatus");
-                        mRil.getIccCardStatus(obtainMessage(EVENT_GET_ICC_STATUS_DONE, paramMessage.obj));
-                    } else {
-                        Log.d(LOG_TAG, "Received EVENT_ICC_STATUS_CHANGED While Radio Is OFF");
-                    }
-                    break;
-                case EVENT_RADIO_OFF_OR_UNAVAILABLE:
-                    mRadioOn = false;
-                    break;
-                default:
-                    Log.e(LOG_TAG, "Unknown Event " + paramMessage.what);
-                    break;
-            }
-        }
-
-        public void run () {
-            mRil.registerForIccStatusChanged(this, EVENT_ICC_STATUS_CHANGED, null);
-            Message msg = obtainMessage(EVENT_RADIO_ON);
-            mRil.getIccCardStatus(msg);
-        }
     }
 }
