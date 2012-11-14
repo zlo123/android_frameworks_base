@@ -138,7 +138,7 @@ public class BluetoothService extends IBluetooth.Stub {
             BluetoothUuid.Handsfree,
             BluetoothUuid.HSP,
             BluetoothUuid.ObexObjectPush,
-            BluetoothUuid.MessageNotificationServer };
+	    BluetoothUuid.MessageNotificationServer };
 
     private final BluetoothAdapterProperties mAdapterProperties;
     private final BluetoothDeviceProperties mDeviceProperties;
@@ -590,7 +590,7 @@ public class BluetoothService extends IBluetooth.Stub {
         if (R.getBoolean(com.android.internal.R.bool.config_bluetooth_default_profiles)) {
             uuids.add(BluetoothUuid.HSP_AG);
             uuids.add(BluetoothUuid.ObexObjectPush);
-            uuids.add(BluetoothUuid.MessageAccessServer);
+	    uuids.add(BluetoothUuid.MessageAccessServer);
         }
 
         if (R.getBoolean(com.android.internal.R.bool.config_voice_capable)) {

@@ -74,9 +74,9 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.os.Trace;
 import android.os.UserId;
+import android.text.TextUtils;
 import android.util.AndroidRuntimeException;
 import android.util.DisplayMetrics;
 import android.util.EventLog;
@@ -1669,8 +1669,8 @@ public final class ActivityThread {
      *
      * @param assets
      * @param theme
-     * @return true if the AssetManager is now theme-aware; false otherwise
-     *         this can fail, for example, if the theme package has been
+     * @return true if the AssetManager is now theme-aware; false otherwise.
+     *         This can fail, for example, if the theme package has been been
      *         removed and the theme manager has yet to revert formally back to
      *         the framework default.
      */
@@ -2104,7 +2104,6 @@ public final class ActivityThread {
 
         try {
             Application app = r.packageInfo.makeApplication(false, mInstrumentation);
-
             if (localLOGV) Slog.v(TAG, "Performing launch of " + r);
             if (localLOGV) Slog.v(
                     TAG, r + ": app=" + app

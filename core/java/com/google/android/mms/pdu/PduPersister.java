@@ -1305,7 +1305,6 @@ public class PduPersister {
         // Check to see if Group MMS is enabled in Share Preferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         boolean groupMMSEnabled = prefs.getBoolean("pref_key_mms_group_mms", true);
-
         HashSet<String> recipients = new HashSet<String>();
         int msgType = pdu.getMessageType();
         // Here we only allocate thread ID for M-Notification.ind,
@@ -1333,7 +1332,6 @@ public class PduPersister {
                     }
                 }
             }
-
             // This block checks if Group MMS is enabled and the PDU is incoming
             // then adds every address in the TO field to recipients minus the owner's own address
             if (groupMMSEnabled && msgType == PduHeaders.MESSAGE_TYPE_RETRIEVE_CONF) {
@@ -1349,7 +1347,6 @@ public class PduPersister {
                     }
                 }
             }
-
             if (!recipients.isEmpty()) {
                 long threadId = Threads.getOrCreateThreadId(mContext, recipients);
                 values.put(Mms.THREAD_ID, threadId);

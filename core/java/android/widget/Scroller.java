@@ -71,7 +71,6 @@ public class Scroller  {
     private static final int NB_SAMPLES = 100;
     private static final float[] SPLINE = new float[NB_SAMPLES + 1];
     private static final String scalingMaxFreqFile = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq";
-
     private int maxFreq = readFileIntoInt(scalingMaxFreqFile);
 
     private float mDeceleration;

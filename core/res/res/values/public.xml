@@ -69,6 +69,10 @@
   <java-symbol type="id" name="deny_button" />
   <java-symbol type="id" name="description" />
   <java-symbol type="id" name="divider" />
+  <java-symbol type="id" name="color_picker_view" />
+  <java-symbol type="id" name="old_color_panel" />
+  <java-symbol type="id" name="new_color_panel" />
+  <java-symbol type="id" name="hex" />
   <java-symbol type="id" name="edit_query" />
   <java-symbol type="id" name="edittext_container" />
   <java-symbol type="id" name="enter_pin_section" />
@@ -264,7 +268,6 @@
   <java-symbol type="bool" name="config_useMasterVolume" />
   <java-symbol type="bool" name="config_enableWallpaperService" />
   <java-symbol type="bool" name="config_sendAudioBecomingNoisy" />
-  <java-symbol type="bool" name="config_show_cmIMESwitcher"/>
   <java-symbol type="bool" name="config_enableScreenshotChord" />
   <java-symbol type="bool" name="config_bluetooth_default_profiles" />
   <java-symbol type="bool" name="config_wifiApFirmwareReload" />
@@ -447,6 +450,10 @@
   <java-symbol type="string" name="date_time" />
   <java-symbol type="string" name="date_time_set" />
   <java-symbol type="string" name="date_time_done" />
+  <java-symbol type="string" name="color_picker" />
+  <java-symbol type="string" name="color_picker_hint" />
+  <java-symbol type="string" name="color_picker_hex" />
+  <java-symbol type="string" name="color_picker_arrow_right" />
   <java-symbol type="string" name="day_of_week_long_friday" />
   <java-symbol type="string" name="day_of_week_long_monday" />
   <java-symbol type="string" name="day_of_week_long_saturday" />
@@ -1452,7 +1459,6 @@
   <java-symbol type="id" name="replace_app_icon" />
   <java-symbol type="id" name="replace_message" />
   <java-symbol type="fraction" name="config_dimBehindFadeDuration" />
-  <java-symbol type="integer" name="config_backKillTimeout" />
   <java-symbol type="integer" name="config_carDockKeepsScreenOn" />
   <java-symbol type="integer" name="config_criticalBatteryWarningLevel" />
   <java-symbol type="integer" name="config_datause_notification_type" />
@@ -1568,11 +1574,9 @@
   <java-symbol type="string" name="enable_explore_by_touch_warning_message" />
 
   <java-symbol type="layout" name="resolver_grid" />
-  <java-symbol type="layout" name="resolver_grid_alt" />
   <java-symbol type="id" name="resolver_grid" />
   <java-symbol type="id" name="button_once" />
   <java-symbol type="id" name="button_always" />
-  <java-symbol type="id" name="checkbox_always" />
   <java-symbol type="integer" name="config_maxResolverActivityColumns" />
 
   <!-- From SystemUI -->
@@ -3180,6 +3184,9 @@
      a ListView). -->
   <public type="layout" name="simple_list_item_activated_2" id="0x01090017" />
 
+  <!-- Simple color dialog layout. -->
+  <public type="layout" name="dialog_color_picker" id="0x01090018" />
+
   <public type="drawable" name="dialog_holo_dark_frame" id="0x010800b2" />
   <public type="drawable" name="dialog_holo_light_frame" id="0x010800b3" />
 
@@ -3654,6 +3661,7 @@
   <public type="color" name="holo_orange_dark" id="0x01060019" />
   <public type="color" name="holo_purple" id="0x0106001a" />
   <public type="color" name="holo_blue_bright" id="0x0106001b" />
+  <public type="color" name="holo_white_light" id="0x0106001c" />
 
 <!-- ===============================================================
    Resources added in version 16 of the platform (Jelly Bean)
@@ -3674,24 +3682,28 @@
   <public type="style" name="Widget.DeviceDefault.Light.MediaRouteButton" id="0x010301d8" />
 
 <!-- ===============================================================
-   Extra Added Resources
+   LiquidSmooth Resources
    =============================================================== -->
   <eat-comment />
 
-  <java-symbol type="array" name="config_telephony_set_audioparameters" />
-
   <!-- Config.xml entries -->
+  <java-symbol type="string" name="config_legacyUmsLunFile" />
+  <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
+  <java-symbol type="array" name="config_telephony_set_audioparameters" />
+  <java-symbol type="bool" name="config_autoBrightnessButtonKeyboard" />
+  <java-symbol type="string" name="config_deviceKeyHandlerLib" />
+  <java-symbol type="string" name="config_deviceKeyHandlerClass" />
   <java-symbol type="integer" name="config_screenOnAnimation" />
   <java-symbol type="integer" name="config_backKillTimeout" />
   <java-symbol type="bool" name="config_screenOffAnimation" />
   <java-symbol type="bool" name="config_hasRotationLockSwitch" />
   <java-symbol type="bool" name="config_hasDockBattery" />
+  <java-symbol type="bool" name="config_noDelayInATwoDP" />
   <java-symbol type="bool" name="config_smsSamsungCdmaAlternateMessageIDEncoding" />
   <java-symbol type="integer" name="config_deviceHardwareKeys" />
   <java-symbol type="bool" name="config_hasRemovableLid" />
   <java-symbol type="bool" name="config_samsung_stk" />
   <java-symbol type="integer" name="config_wallpaperMaxWidth" />
-  <java-symbol type="bool" name="config_noDelayInATwoDP" />
 
   <!-- Notification and battery light -->
   <java-symbol type="bool" name="config_intrusiveBatteryLed" />
@@ -3853,9 +3865,6 @@
   <java-symbol type="string" name="second" />
   <java-symbol type="string" name="seconds" />
 
-  <java-symbol type="string" name="config_deviceKeyHandlerLib" />
-  <java-symbol type="string" name="config_deviceKeyHandlerClass" />
-
   <!-- Lock screen always show battery -->
   <java-symbol type="string" name="lockscreen_discharging" />
 
@@ -3915,14 +3924,9 @@
   <java-symbol type="string" name="symbol_picker_Z" />
 
 <!-- ===============================================================
-     Extra resources
+     LiquidSmooth Resources
      =============================================================== -->
-  <eat-comment />
 
-  <java-symbol type="string" name="config_legacyUmsLunFile" />
-  <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
-  <java-symbol type="bool" name="config_autoBrightnessButtonKeyboard" />
-  
   <!-- Hide Navbar -->
   <java-symbol type="layout" name="global_actions_navbar_mode" />
   <java-symbol type="id" name="navbartoggle" />
@@ -3954,4 +3958,10 @@
   <!-- HW rotation lock -->
   <java-symbol type="string" name="toast_rotation_unlocked" />
   <java-symbol type="string" name="toast_rotation_locked" />
+
+  <!-- IME Picker showing upon pressing Sym Key -->
+  <java-symbol type="bool" name="config_symKeyShowsImePicker" />
+
+  <!-- Stylus gestures -->
+  <java-symbol type="bool" name="config_stylusGestures" />
 </resources>
