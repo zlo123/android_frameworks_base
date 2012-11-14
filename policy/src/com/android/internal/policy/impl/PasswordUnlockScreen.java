@@ -22,6 +22,10 @@ import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+
+import com.android.internal.widget.LockPatternUtils;
+import com.android.internal.widget.PasswordEntryKeyboardView;
+
 import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -45,9 +49,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.android.internal.R;
-import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.PasswordEntryKeyboardHelper;
-import com.android.internal.widget.PasswordEntryKeyboardView;
 
 /**
  * Displays a dialer-like interface or alphanumeric (latin-1) key entry for the user to enter

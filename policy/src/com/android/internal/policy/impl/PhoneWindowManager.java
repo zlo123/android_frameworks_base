@@ -203,6 +203,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final int KEY_ACTION_SEARCH = 3;
     private static final int KEY_ACTION_VOICE_SEARCH = 4;
     private static final int KEY_ACTION_IN_APP_SEARCH = 5;
+    private static final int KEY_ACTION_TORCH = 6;
 
     // Masks for checking presence of hardware keys.
     // Must match values in core/res/res/values/config.xml
@@ -392,7 +393,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     int mUserNavBarHeightLand;
     int mUserNavBarWidth;
 
-
     WindowState mKeyguard = null;
     KeyguardViewMediator mKeyguardMediator;
     GlobalActions mGlobalActions;
@@ -444,12 +444,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mOrientationSensorEnabled = false;
     int mCurrentAppOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     boolean mHasSoftInput = false;
+    int mBackKillTimeout;
     int mDeviceHardwareKeys;
     boolean mHasHomeKey;
     boolean mHasMenuKey;
     boolean mHasAssistKey;
     boolean mHasAppSwitchKey;
-    int mBackKillTimeout;
     
     int mPointerLocationMode = 0; // guarded by mLock
 
@@ -983,8 +983,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             && appInfo.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
                         if (appInfo.pkgList != null && (appInfo.pkgList.length > 0)) {
                             for (String pkg : appInfo.pkgList) {
-                                if (!pkg.equals("com.android.systemui")
-                                        && !pkg.equals(defaultHomePackage)) {
+                                if (!pkg.equals("com.android.systemui") && !pkg.equals(defaultHomePackage)) {
                                     am.forceStopPackage(pkg);
                                     targetKilled = true;
                                     break;
@@ -997,8 +996,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     }
                     if (targetKilled) {
                         performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
-                        Toast.makeText(mContext, R.string.app_killed_message, Toast.LENGTH_SHORT)
-                                .show();
+                        Toast.makeText(mContext, R.string.app_killed_message, Toast.LENGTH_SHORT).show();
                         break;
                     }
                 }
@@ -1075,6 +1073,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             case KEY_ACTION_IN_APP_SEARCH:
                 triggerVirtualKeypress(KeyEvent.KEYCODE_SEARCH);
                 break;
+            case KEY_ACTION_TORCH:
+                Intent i = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
+                i.putExtra("bright", false);
+                mContext.sendBroadcast(i);
             default:
                 break;
         }
@@ -1211,18 +1213,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 com.android.internal.R.integer.config_lidNavigationAccessibility);
         mLidControlsSleep = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_lidControlsSleep);
+        mHasRemovableLid = mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_hasRemovableLid);
+        mBackKillTimeout = mContext.getResources().getInteger(
+                com.android.internal.R.integer.config_backKillTimeout);
         mDeviceHardwareKeys = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_deviceHardwareKeys);
         mHasHomeKey = ((mDeviceHardwareKeys & KEY_MASK_HOME) != 0);
         mHasMenuKey = ((mDeviceHardwareKeys & KEY_MASK_MENU) != 0);
         mHasAssistKey = ((mDeviceHardwareKeys & KEY_MASK_ASSIST) != 0);
         mHasAppSwitchKey = ((mDeviceHardwareKeys & KEY_MASK_APP_SWITCH) != 0);
-
-        mHasRemovableLid = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_hasRemovableLid);
-        mBackKillTimeout = mContext.getResources().getInteger(
-                com.android.internal.R.integer.config_backKillTimeout);
-
         // register for dock events
         IntentFilter filter = new IntentFilter();
         filter.addAction(UiModeManager.ACTION_ENTER_CAR_MODE);
@@ -1364,6 +1364,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             .getDimensionPixelSize(
                                     com.android.internal.R.dimen.navigation_bar_width));
 
+        // SystemUI (status bar) layout policy
         int shortSizeDp = shortSize
                 * DisplayMetrics.DENSITY_DEFAULT
                 / DisplayMetrics.DENSITY_DEVICE;
@@ -1371,7 +1372,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // tabletui switch
         boolean mTabletui = Settings.System.getBoolean(mContext.getContentResolver(), Settings.System.MODE_TABLET_UI, false);
         if (!mTabletui) {
-
              // SystemUI (status bar) layout policy
              if (shortSizeDp < 600) {
                  // 0-599dp: "phone" UI with a separate status & navigation bar
@@ -1439,36 +1439,36 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                      mNavigationBarHeightForRotation[mLandscapeRotation] =
                      mNavigationBarHeightForRotation[mSeascapeRotation] = 0;
          }
-         if (mHasSystemNavBar) {
-             // The system bar is always at the bottom. If you are watching
-             // a video in landscape, we don't need to hide it if we can
-             // still
-             // show a 16:9 aspect ratio with it.
-             int longSizeDp = longSize
-                     * DisplayMetrics.DENSITY_DEFAULT
-                     / DisplayMetrics.DENSITY_DEVICE;
-             int barHeightDp = mNavigationBarHeightForRotation[mLandscapeRotation]
-                     * DisplayMetrics.DENSITY_DEFAULT
-                     / DisplayMetrics.DENSITY_DEVICE;
-             int aspect = ((shortSizeDp - barHeightDp) * 16) / longSizeDp;
-             // We have computed the aspect ratio with the bar height taken
-             // out to be 16:aspect. If this is less than 9, then hiding
-             // the navigation bar will provide more useful space for wide
-             // screen movies.
-             mCanHideNavigationBar = aspect < 9;
-         } else if (mHasNavigationBar) {
-             // The navigation bar is at the right in landscape; it seems
-            // always useful to hide it for showing a video.
-            mCanHideNavigationBar = true;
-         } else {
-             mCanHideNavigationBar = false;
-         }
 
-         if ("portrait".equals(SystemProperties.get("persist.demo.hdmirotation"))) {
-             mHdmiRotation = mPortraitRotation;
-         } else {
-             mHdmiRotation = mLandscapeRotation;
-         }
+        if (mHasSystemNavBar) {
+            // The system bar is always at the bottom.  If you are watching
+            // a video in landscape, we don't need to hide it if we can still
+            // show a 16:9 aspect ratio with it.
+            int longSizeDp = longSize
+                    * DisplayMetrics.DENSITY_DEFAULT
+                    / DisplayMetrics.DENSITY_DEVICE;
+            int barHeightDp = mNavigationBarHeightForRotation[mLandscapeRotation]
+                    * DisplayMetrics.DENSITY_DEFAULT
+                    / DisplayMetrics.DENSITY_DEVICE;
+            int aspect = ((shortSizeDp-barHeightDp) * 16) / longSizeDp;
+            // We have computed the aspect ratio with the bar height taken
+            // out to be 16:aspect.  If this is less than 9, then hiding
+            // the navigation bar will provide more useful space for wide
+            // screen movies.
+            mCanHideNavigationBar = aspect < 9;
+        } else if (mHasNavigationBar) {
+            // The navigation bar is at the right in landscape; it seems always
+            // useful to hide it for showing a video.
+            mCanHideNavigationBar = true;
+        } else {
+            mCanHideNavigationBar = false;
+        }
+
+        if ("portrait".equals(SystemProperties.get("persist.demo.hdmirotation"))) {
+            mHdmiRotation = mPortraitRotation;
+        } else {
+            mHdmiRotation = mLandscapeRotation;
+        }
     }
 
     public void updateSettings() {
@@ -2480,12 +2480,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             return -1;
         } else if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.KILL_APP_LONGPRESS_BACK, 0) == 1) {
+            if (Settings.Secure.getInt(mContext.getContentResolver(),
+                    Settings.Secure.KILL_APP_LONGPRESS_BACK, 0) == 1) {
                 if (down && repeatCount == 0) {
                     mHandler.postDelayed(mBackLongPress, mBackKillTimeout);
-                } else if (!down) {
-                    mHandler.removeCallbacks(mBackLongPress);
                 }
             }
         }
@@ -4099,7 +4097,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     // If the keyguard is showing, let it decide what to do with the wake key.
                     mKeyguardMediator.onWakeKeyWhenKeyguardShowingTq(keyCode,
                             mDockMode != Intent.EXTRA_DOCK_STATE_UNDOCKED);
-                } else if ((keyCode != KeyEvent.KEYCODE_VOLUME_UP) && (keyCode != KeyEvent.KEYCODE_VOLUME_DOWN) && (keyCode != KeyEvent.KEYCODE_HOME)) {
+                } else if ((keyCode != KeyEvent.KEYCODE_VOLUME_UP) && (keyCode != KeyEvent.KEYCODE_VOLUME_DOWN)) {
                     // Otherwise, wake the device ourselves.
                     result |= ACTION_POKE_USER_ACTIVITY;
                 }
@@ -4617,7 +4615,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         + "); user=" + mUserRotation + " "
                         + ((mUserRotationMode == WindowManagerPolicy.USER_ROTATION_LOCKED)
                             ? "USER_ROTATION_LOCKED" : "")
-                        );
+                       );
         }
 
         synchronized (mLock) {
@@ -4869,24 +4867,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     ProgressDialog mBootMsgDialog = null;
-    /**
-     * name of package currently being dex optimized
-     * as shown through this.showBootMessage(msg, always);
-     */
-    static String currentPackageName;
-    public void setPackageName(String pkgName) {
-        if (pkgName == null) {
-            pkgName = "stop.looking.at.me.swan";
-        }
-        this.currentPackageName = pkgName;
-    }
-
-    // debugging 'Android is upgrading...' ProgressDialog
-    final boolean DEBUG_BOOTMSG = false;
-
-    // this method is called to create, if needed, and update boot ProgressDialog
-    // see @link frameworks/base/services/java/com/android/server/pm/
-    //               PackageManagerService.performBootDexOpt()
 
     /** {@inheritDoc} */
     public void showBootMessage(final CharSequence msg, final boolean always) {
@@ -4933,22 +4913,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     mBootMsgDialog.show();
                 }
                 mBootMsgDialog.setMessage(msg);
-                if (DEBUG_BOOTMSG) Log.d(TAG, "********** showBootMessage(" + msg +", " + always + ") updated ***********");
-                if (currentPackageName != null) {
-                    mBootMsgDialog.setTitle(msg);
-                    mBootMsgDialog.setMessage(currentPackageName);
-                    if (DEBUG_BOOTMSG) Log.d(TAG, "setTitle: " + msg + " setMessage: " + currentPackageName);
-                } else {
-                    if (DEBUG_BOOTMSG) Log.d(TAG, "failed; CURRENT_PACKAGE_NAME == null");
-                }
-                if (msg.equals(mContext.getResources().getString(R.string.android_upgrading_starting_apps))) {
-                    if (DEBUG_BOOTMSG) Log.d(TAG, "starting apps so we use normal layout");
-                    mBootMsgDialog.setTitle(R.string.android_upgrading_title);
-                    mBootMsgDialog.setMessage(mContext.getResources().getString(R.string.android_upgrading_starting_apps));
-
-                } else {
-                    if (DEBUG_BOOTMSG) Log.d(TAG, "not starting apps");
-                }
             }
         });
     }

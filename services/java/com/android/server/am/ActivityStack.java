@@ -295,9 +295,7 @@ final class ActivityStack {
     static final int STOP_TIMEOUT_MSG = ActivityManagerService.FIRST_ACTIVITY_STACK_MSG + 8;
     static final int DESTROY_ACTIVITIES_MSG = ActivityManagerService.FIRST_ACTIVITY_STACK_MSG + 9;
     private static final String scalingMaxFreqFile = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq";
-
     private int maxFreq = readFileIntoInt(scalingMaxFreqFile);
-    
     // Reads file into variable
     private int readFileIntoInt(String fileToBeRead) {
       try {

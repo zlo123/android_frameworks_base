@@ -87,11 +87,12 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private static final String TAG = "GlobalActions";
 
+    private static final boolean SHOW_SILENT_TOGGLE = true;
+
     private final Context mContext;
     private final WindowManagerFuncs mWindowManagerFuncs;
 
     private Context mUiContext;
-
     private final AudioManager mAudioManager;
 
     private ArrayList<Action> mItems;
@@ -153,8 +154,10 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mKeyguardShowing = keyguardShowing;
         mDeviceProvisioned = isDeviceProvisioned;
         if (mDialog != null) {
-            mDialog.hide();
-            mDialog.cancel();
+            if (mUiContext != null) {
+                mUiContext = null;
+            }
+            mDialog.dismiss();
             mDialog = null;
             // Show delayed, so that the dismiss of the previous dialog completes
             mHandler.sendEmptyMessage(MESSAGE_SHOW);
@@ -189,7 +192,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         } else {
             mSilentModeAction = new SilentModeTriStateAction(mContext, mAudioManager, mHandler);
         }
-
         mNavBarHideToggle = new NavBarAction(mHandler);
 
         mExpandDesktopModeOn = new ToggleAction(
@@ -283,11 +285,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                     mWindowManagerFuncs.shutdown();
                 }
 
-                public boolean onLongPress() {
-                    mWindowManagerFuncs.rebootSafeMode();
-                    return true;
-                }
-
                 public boolean showDuringKeyguard() {
                     return true;
                 }
@@ -322,7 +319,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 });
         }
 
-        // next: profiles
+        // next: profile
         // only shown if both system profiles and the menu item is enabled, enabled by default
         if ((Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.SYSTEM_PROFILES_ENABLED, 1) == 1) &&
@@ -413,9 +410,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
 
         // last: silent mode
-        // only shown if enabled, enabled by default
-        if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_SILENT_MODE_ENABLED, 1) == 1) {
+        if ((Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_MENU_SILENT_MODE_ENABLED, 1) == 1) &&
+                (SHOW_SILENT_TOGGLE)) {
             mItems.add(mSilentModeAction);
         }
 
@@ -462,7 +459,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             names[i++] = profile.getName();
         }
 
-        final AlertDialog.Builder ab = new AlertDialog.Builder(mContext);
+        final AlertDialog.Builder ab = new AlertDialog.Builder(getUiContext());
 
         AlertDialog dialog = ab
                 .setTitle(R.string.global_action_choose_profile)
@@ -574,8 +571,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
         }
 
-        if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_SILENT_MODE_ENABLED, 1) == 1) {
+        mDialog.setTitle(R.string.global_actions);
+
+        if (SHOW_SILENT_TOGGLE) {
             IntentFilter filter = new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION);
             mContext.registerReceiver(mRingerModeReceiver, filter);
         }
@@ -592,8 +590,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     /** {@inheritDoc} */
     public void onDismiss(DialogInterface dialog) {
-        if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_SILENT_MODE_ENABLED, 1) == 1) {
+        if (SHOW_SILENT_TOGGLE) {
             mContext.unregisterReceiver(mRingerModeReceiver);
         }
     }
@@ -738,8 +735,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             return false;
         }
 
-        public View create(
-                Context context, View convertView, ViewGroup parent, LayoutInflater inflater) {
+        public View create(Context context, View convertView, ViewGroup parent, LayoutInflater inflater) {
             View v = inflater.inflate(R.layout.global_actions_item, parent, false);
 
             ImageView icon = (ImageView) v.findViewById(R.id.icon);
@@ -776,18 +772,24 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         abstract public void onPress();
 
         public View create(Context context, View convertView, ViewGroup parent, LayoutInflater inflater) {
-            View v = (convertView != null) ?
-                    convertView :
-                    inflater.inflate(R.layout.global_actions_item, parent, false);
+            View v = inflater.inflate(R.layout.global_actions_item, parent, false);
 
             ImageView icon = (ImageView) v.findViewById(R.id.icon);
             TextView messageView = (TextView) v.findViewById(R.id.message);
             TextView statusView = (TextView) v.findViewById(R.id.status);
-            statusView.setVisibility(View.VISIBLE);
-            statusView.setText(mProfileManager.getActiveProfile().getName());
 
-            icon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_lock_profile));
-            messageView.setText(R.string.global_action_choose_profile);
+            if (statusView != null) {
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setText(mProfileManager.getActiveProfile().getName());
+            }
+
+            if (icon != null) {
+                icon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_lock_profile));
+            }
+
+            if (messageView != null) {
+                messageView.setText(R.string.global_action_choose_profile);
+            }
 
             return v;
         }
@@ -849,6 +851,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
          * View.
          */
         void willCreate() {
+
         }
 
         public View create(Context context, View convertView, ViewGroup parent,
@@ -1031,7 +1034,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             mHandler = handler;
         }
 
-
         public View create(Context context, View convertView, ViewGroup parent,
                 LayoutInflater inflater) {
             mContext = context;
@@ -1101,6 +1103,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 break;
             }
         }
+
         public void injectKeyDelayed(int keycode,long downtime){
             mInjectKeycode = keycode;
             mDownTime = downtime;
@@ -1267,4 +1270,3 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         return mIWindowManager;
     }
 }
-

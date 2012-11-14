@@ -1438,13 +1438,12 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
             mCurMethodId = null;
             unbindCurrentMethodLocked(true);
         }
-        // code to disable the CM Phone IME switcher with config_show_cmIMESwitcher set = false
+
         try {
             mShowOngoingImeSwitcherForPhones = Settings.System.getInt(mContext.getContentResolver(),
             Settings.System.STATUS_BAR_IME_SWITCHER) == 1;
         } catch (SettingNotFoundException e) {
-            mShowOngoingImeSwitcherForPhones = mRes.getBoolean(
-            com.android.internal.R.bool.config_show_cmIMESwitcher);
+            mShowOngoingImeSwitcherForPhones = false;
         }
     }
 

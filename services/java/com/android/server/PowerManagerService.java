@@ -2297,12 +2297,11 @@ public class PowerManagerService extends IPowerManager.Stub
                             // light situations.
                             mButtonLight.setBrightness(mLightSensorButtonBrightness >= 0 && value > 0 ?
                                     mLightSensorButtonBrightness : value);
-
-
                         }
 
                         if ((mask & KEYBOARD_BRIGHT_BIT) != 0) {
-                            mKeyboardLight.setBrightness(value);
+                            mKeyboardLight.setBrightness(mLightSensorKeyboardBrightness >= 0 && value > 0 ?
+                                    mLightSensorKeyboardBrightness : value);
                         }
 
                         if ((mask & SCREEN_BRIGHT_BIT) != 0) {
@@ -2318,8 +2317,7 @@ public class PowerManagerService extends IPowerManager.Stub
                             mButtonLight.setBrightness(value);
                         }
                         if ((mask & KEYBOARD_BRIGHT_BIT) != 0) {
-                            mKeyboardLight.setBrightness(mLightSensorKeyboardBrightness >= 0 && value > 0 ?
-                                    mLightSensorKeyboardBrightness : value);
+                            mKeyboardLight.setBrightness(value);
                         }
 
                         if (elapsed > 100) {

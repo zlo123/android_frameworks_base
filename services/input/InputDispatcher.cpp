@@ -237,13 +237,6 @@ void InputDispatcher::dispatchOnce() {
 void InputDispatcher::dispatchOnceInnerLocked(nsecs_t* nextWakeupTime) {
     nsecs_t currentTime = now();
 
-    // Reset the key repeat timer whenever we disallow key events, even if the next event
-    // is not a key.  This is to ensure that we abort a key repeat if the device is just coming
-    // out of sleep.
-    if (!mPolicy->isKeyRepeatEnabled() || !mDispatchEnabled) {
-        resetKeyRepeatLocked();
-    }
-
     // If dispatching is frozen, do not process timeouts or try to deliver any new events.
     if (mDispatchFrozen) {
 #if DEBUG_FOCUS

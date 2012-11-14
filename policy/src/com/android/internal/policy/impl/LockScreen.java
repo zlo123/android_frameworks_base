@@ -52,11 +52,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
+import android.widget.*;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.android.internal.R;
 import com.android.internal.policy.impl.KeyguardUpdateMonitor.InfoCallbackImpl;
@@ -82,21 +79,17 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
     private static final int ON_RESUME_PING_DELAY = 500; // delay first ping until the screen is on
     private static final boolean DBG = false;
-    private static final boolean DEBUG = DBG;
     private static final String TAG = "LockScreen";
     private static final String ENABLE_MENU_KEY_FILE = "/data/local/enable_menu_key";
     private static final int WAIT_FOR_ANIMATION_TIMEOUT = 0;
     private static final int STAY_ON_WHILE_GRABBED_TIMEOUT = 30000;
+    private static final int DEFAULT_TEXT_COLOR = 0xFFFFFFFF;
     private static final String ASSIST_ICON_METADATA_NAME =
             "com.android.systemui.action_assist_icon";
 
     public static final int LAYOUT_STOCK = 0;
     public static final int LAYOUT_SIX_EIGHT = 1;
-
     private int mLockscreenStyle = LAYOUT_STOCK;
-
-    private static final int COLOR_WHITE = 0xFFFFFFFF;
-
     private LockPatternUtils mLockPatternUtils;
     private KeyguardUpdateMonitor mUpdateMonitor;
     private KeyguardScreenCallback mCallback;
@@ -111,6 +104,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     private boolean mSilentMode;
     private AudioManager mAudioManager;
     private boolean mEnableMenuKeyInLockScreen;
+    private boolean mUnlockKeyDown = false;
 
     private KeyguardStatusViewManager mStatusViewManager;
     private UnlockWidgetCommonMethods mUnlockWidgetMethods;
@@ -119,7 +113,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     private boolean mSearchDisabled;
     // Is there a vibrator
     private final boolean mHasVibrator;
-
     private DigitalClock mDigitalClock;
 
     InfoCallbackImpl mInfoCallback = new InfoCallbackImpl() {
@@ -517,9 +510,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                     | Intent.FLAG_ACTIVITY_SINGLE_TOP
                     | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             try {
-                if (mLockPatternUtils.isSecure()) {
-                    mCallback.goToUnlockScreen();
-                }
                 mContext.startActivity(intent);
                 mCallback.goToUnlockScreen();
             } catch (ActivityNotFoundException e) {
@@ -633,25 +623,22 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
         final LayoutInflater inflater = LayoutInflater.from(context);
         if (DBG) Log.v(TAG, "Creation orientation = " + mCreationOrientation);
-
         boolean landscape = mCreationOrientation == Configuration.ORIENTATION_LANDSCAPE;
 
         switch (mLockscreenStyle) {
             case LAYOUT_STOCK:
-                if (landscape)
-                    inflater.inflate(R.layout.keyguard_screen_tab_unlock_land, this,
-                                    true);
-                else
-                    inflater.inflate(R.layout.keyguard_screen_tab_unlock, this,
-                                    true);
+                if (landscape) {
+                    inflater.inflate(R.layout.keyguard_screen_tab_unlock_land, this, true);
+                } else {
+                    inflater.inflate(R.layout.keyguard_screen_tab_unlock, this, true);
+                }
                 break;
             case LAYOUT_SIX_EIGHT:
-                if (landscape)
-                    inflater.inflate(R.layout.keyguard_screen_tab_unlock_land, this,
-                                    true);
-                else
-                    inflater.inflate(R.layout.keyguard_screen_tab_unlock_six_eight, this,
-                                    true);
+                if (landscape) {
+                    inflater.inflate(R.layout.keyguard_screen_tab_unlock_land, this, true);
+                } else {
+                    inflater.inflate(R.layout.keyguard_screen_tab_unlock_six_eight, this, true);
+                }
                 break;
         }
 
@@ -769,6 +756,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        mUnlockKeyDown = true;
         if (keyCode == KeyEvent.KEYCODE_BACK
                 || keyCode == KeyEvent.KEYCODE_HOME
                 || keyCode == KeyEvent.KEYCODE_MENU) {
@@ -780,9 +768,15 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_MENU && mEnableMenuKeyInLockScreen) ||
-            (keyCode == KeyEvent.KEYCODE_HOME && mHomeUnlockScreen)) {
-            mCallback.goToUnlockScreen();
+        int flags = event.getFlags();
+        // make sure the keydown is from a screen on state
+        if (mUnlockKeyDown) {
+            mUnlockKeyDown = false;
+            boolean mNotLongPress = (flags & KeyEvent.FLAG_CANCELED_LONG_PRESS) == 0;
+            if (mNotLongPress && ((keyCode == KeyEvent.KEYCODE_MENU && mEnableMenuKeyInLockScreen) ||
+                    (keyCode == KeyEvent.KEYCODE_HOME && mHomeUnlockScreen))) {
+                mCallback.goToUnlockScreen();
+            }
         }
         return false;
     }
@@ -965,7 +959,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         mStatusViewManager.onResume();
         postDelayed(mOnResumePing, ON_RESUME_PING_DELAY);
         // update the settings when we resume
-        if (DEBUG) Log.d(TAG, "We are resuming and want to update settings");
         updateSettings();
     }
 
@@ -992,11 +985,9 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.LOCKSCREEN_LAYOUT), false,
-                    this);
+                    Settings.System.getUriFor(Settings.System.LOCKSCREEN_LAYOUT), false, this);
             resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.LOCKSCREEN_CUSTOM_TEXT_COLOR), false,
-                    this);
+                    Settings.System.getUriFor(Settings.System.LOCKSCREEN_TEXT_COLOR), false, this);
             updateSettings();
         }
 
@@ -1007,27 +998,27 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     }
 
     private void updateSettings() {
-        if (DEBUG) Log.d(TAG, "Settings for lockscreen have changed lets update");
+        if (DBG) Log.d(TAG, "Settings for lockscreen have changed lets update");
         ContentResolver resolver = mContext.getContentResolver();
 
         int mLockscreenStyle = Settings.System.getInt(resolver,
                 Settings.System.LOCKSCREEN_LAYOUT, LAYOUT_STOCK);
 
         int mLockscreenColor = Settings.System.getInt(resolver,
-                Settings.System.LOCKSCREEN_CUSTOM_TEXT_COLOR, COLOR_WHITE);
+                Settings.System.LOCKSCREEN_TEXT_COLOR, DEFAULT_TEXT_COLOR);
 
         // digital clock first (see @link com.android.internal.widget.DigitalClock.updateTime())
         try {
             mDigitalClock.updateTime();
         } catch (NullPointerException npe) {
-            if (DEBUG) Log.d(TAG, "date update time failed: NullPointerException");
+            if (DBG) Log.d(TAG, "date update time failed: NullPointerException");
         }
 
         // then the rest (see @link com.android.internal.policy.impl.KeyguardStatusViewManager.updateColors())
         try {
             mStatusViewManager.updateColors();
         } catch (NullPointerException npe) {
-            if (DEBUG) Log.d(TAG, "KeyguardStatusViewManager.updateColors() failed: NullPointerException");
+            if (DBG) Log.d(TAG, "KeyguardStatusViewManager.updateColors() failed: NullPointerException");
         }
     }
 }

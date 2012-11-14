@@ -90,14 +90,13 @@ class KeyguardStatusViewManager implements OnClickListener {
     public static final int DISCHARGING_ICON = 0; // no icon used in ics+ currently
     public static final int BATTERY_LOW_ICON = 0; //R.drawable.ic_lock_idle_low_battery;
     private static final long INSTRUCTION_RESET_DELAY = 2000; // time until instruction text resets
-
+    private static final int TEXT_DEFAULT_COLOR = 0xFFFFFFFF;
     private static final int INSTRUCTION_TEXT = 10;
     private static final int CARRIER_TEXT = 11;
     private static final int CARRIER_HELP_TEXT = 12;
     private static final int HELP_MESSAGE_TEXT = 13;
     private static final int OWNER_INFO = 14;
     private static final int BATTERY_INFO = 15;
-    private static final int COLOR_WHITE = 0xFFFFFFFF;
 
     private StatusMode mStatus;
     private String mDateFormatString;
@@ -285,7 +284,6 @@ class KeyguardStatusViewManager implements OnClickListener {
         }
 
         updateColors();
-
         // Required to get Marquee to work.
         final View scrollableViews[] = { mCarrierView, mDateView, mStatus1View, mOwnerInfoView,
                 mAlarmStatusView, mCalendarEventDetails, mWeatherCity, mWeatherCondition };
@@ -991,15 +989,14 @@ class KeyguardStatusViewManager implements OnClickListener {
                 }
                 break;
         }
-
         String customLabel;
         customLabel = Settings.System.getString(getContext().getContentResolver(),
             Settings.System.CUSTOM_CARRIER_LABEL);
-        if(customLabel == null || customLabel.length() == 0)
+        if (customLabel == null || customLabel.length() == 0) {
             setCarrierText(carrierText);
-        else
+        } else {
             setCarrierText(customLabel);
-
+        }
         setCarrierHelpText(carrierHelpTextId);
         updateEmergencyCallButtonState(mPhoneState);
     }
@@ -1167,7 +1164,7 @@ class KeyguardStatusViewManager implements OnClickListener {
         if (DEBUG) Log.d(TAG, "Lets update the colors");
         ContentResolver resolver = getContext().getContentResolver();
         int color = Settings.System.getInt(resolver,
-                Settings.System.LOCKSCREEN_CUSTOM_TEXT_COLOR, COLOR_WHITE);
+                Settings.System.LOCKSCREEN_TEXT_COLOR, TEXT_DEFAULT_COLOR);
 
         // carrier view
         try {
