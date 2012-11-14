@@ -47,7 +47,7 @@ public class BluetoothToggle extends Toggle {
                 updateState();
             }
         }, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-        setLabel(R.string.toggle_bt);
+        setLabel(R.string.toggle_bluetooth);
         updateState();
     }
 
@@ -62,7 +62,6 @@ public class BluetoothToggle extends Toggle {
             }
             updateState();
         }
-
     }
 
     @Override
@@ -86,10 +85,11 @@ public class BluetoothToggle extends Toggle {
                 mToggle.setEnabled(true);
                 break;
         }
-        if (mToggle.isChecked())
+        if (mToggle.isChecked()) {
             setIcon(R.drawable.toggle_bluetooth);
-        else
+        } else {
             setIcon(R.drawable.toggle_bluetooth_off);
+        }
         return mToggle.isChecked();
     }
 

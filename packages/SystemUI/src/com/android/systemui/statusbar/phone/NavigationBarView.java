@@ -85,10 +85,9 @@ public class NavigationBarView extends LinearLayout {
     final static String TAG = "PhoneStatusBar/NavigationBarView";
 
     final static boolean DEBUG_DEADZONE = false;
-
     final static boolean NAVBAR_ALWAYS_AT_RIGHT = true;
-
     final static boolean ANIMATE_HIDE_TRANSITION = false; // turned off because it introduces unsightly delay when videos goes to full screen
+    private static final int NAVBAR_DEFAULT_COLOR = 0xFF000000;
 
     protected IStatusBarService mBarService;
     final Display mDisplay;
@@ -270,7 +269,7 @@ public class NavigationBarView extends LinearLayout {
         mBackIcon = res.getDrawable(R.drawable.ic_sysbar_back);
         mBackLandIcon = res.getDrawable(R.drawable.ic_sysbar_back_land);
         mBackAltIcon = res.getDrawable(R.drawable.ic_sysbar_back_ime);
-        mBackAltLandIcon = res.getDrawable(R.drawable.ic_sysbar_back_ime_land);
+        mBackAltLandIcon = res.getDrawable(R.drawable.ic_sysbar_back_ime);
         
         mContext.getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(Settings.System.SYSTEMUI_NAVBAR_COLOR), false,
@@ -280,8 +279,6 @@ public class NavigationBarView extends LinearLayout {
                         updateColor();
                     }
                 });
-
-        mBackAltLandIcon = res.getDrawable(R.drawable.ic_sysbar_back_ime);
     }
 
     private void makeBar() {
@@ -314,7 +311,7 @@ public class NavigationBarView extends LinearLayout {
                 addLightsOutButton(lightsOut, v, landscape && !mLeftyMode, false);
                 
                 if (v.getId() == R.id.back){
-                  mBackIcon = mBackLandIcon = v.getDrawable();
+                	mBackIcon = mBackLandIcon = v.getDrawable();
                 }
                 if (v.getId() == R.id.menu){
                     mHasBigMenuButton = true;
@@ -488,13 +485,11 @@ public class NavigationBarView extends LinearLayout {
         padding[2] = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources()
                 .getDisplayMetrics());
         // bottom
-        padding[3] = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
-                getResources()
-                        .getDisplayMetrics());
+        padding[3] = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources()
+                .getDisplayMetrics());
         return padding;
     }
 
-    
     private LayoutParams getLayoutParams(boolean landscape, float dp) {
         float px = dp * getResources().getDisplayMetrics().density;
         return landscape ?
@@ -545,8 +540,8 @@ public class NavigationBarView extends LinearLayout {
         if (getBackButton() != null) {
         	getBackButton().setAlpha(
         			(0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_NOP)) ? 0.5f : 1.0f);
-        	((ImageView)getBackButton()).setImageDrawable(
-                (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_ALT))
+            ((ImageView)getBackButton()).setImageDrawable(
+                    (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_ALT))
                     ? (mVertical ? mBackAltLandIcon : mBackAltIcon)
                     : (mVertical ? mBackLandIcon : mBackIcon));
         }
@@ -604,7 +599,6 @@ public class NavigationBarView extends LinearLayout {
                 return;
             }
             WindowManagerImpl.getDefault().updateViewLayout(this, lp);
-            
         }
     }
 
@@ -871,31 +865,21 @@ public class NavigationBarView extends LinearLayout {
             ContentResolver resolver = mContext.getContentResolver();
           
             resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.MENU_LOCATION), false,
-                    this);
+                    Settings.System.getUriFor(Settings.System.MENU_LOCATION), false, this);
             resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.MENU_VISIBILITY), false,
-                    this);
+                    Settings.System.getUriFor(Settings.System.MENU_VISIBILITY), false, this);
             resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_BUTTONS_QTY), false,
-                    this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_LEFTY_MODE), false, this);
+                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_BUTTONS_QTY), false, this);
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_LEFTY_MODE), false, this);
 
             for (int j = 0; j < 7; j++) { // watch all 5 settings for changes.
                 resolver.registerContentObserver(
-                        Settings.System.getUriFor(Settings.System.NAVIGATION_CUSTOM_ACTIVITIES[j]),
-                        false,
-                        this);
+                	Settings.System.getUriFor(Settings.System.NAVIGATION_CUSTOM_ACTIVITIES[j]), false, this);
                 resolver.registerContentObserver(
-                        Settings.System
-                                .getUriFor(Settings.System.NAVIGATION_LONGPRESS_ACTIVITIES[j]),
-                        false,
-                        this);
+                    Settings.System.getUriFor(Settings.System.NAVIGATION_LONGPRESS_ACTIVITIES[j]), false, this);
                 resolver.registerContentObserver(
-                        Settings.System.getUriFor(Settings.System.NAVIGATION_CUSTOM_APP_ICONS[j]),
-                        false,
-                        this);
+                    Settings.System.getUriFor(Settings.System.NAVIGATION_CUSTOM_APP_ICONS[j]), false, this);
             }
             updateSettings();
         }
@@ -993,8 +977,7 @@ public class NavigationBarView extends LinearLayout {
 
     private void updateColor() {
         int color = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.SYSTEMUI_NAVBAR_COLOR,
-                Settings.System.SYSTEMUI_NAVBAR_COLOR_DEF);
+                Settings.System.SYSTEMUI_NAVBAR_COLOR, NAVBAR_DEFAULT_COLOR);
         float alpha = Color.alpha(color);
         this.setBackground(new ColorDrawable(color));
         this.setAlpha(alpha);

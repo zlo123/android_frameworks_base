@@ -108,7 +108,6 @@ public class WidgetSelectActivity extends Activity {
         sendBroadcast(send);
         Log.i(TAG, "ACTION_SEND_ID sent ID:"+ appWidgetId + " Label:"+getWidgetSummary(appWidgetId) );
         finish();
-
     }
 
     private String getWidgetSummary(int appWidgetId) {

@@ -22,12 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
-import android.database.ContentObserver;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
@@ -39,6 +37,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.provider.Telephony;
 import android.telephony.PhoneStateListener;
@@ -132,8 +131,6 @@ public class NetworkController extends BroadcastReceiver {
 
     private boolean mAirplaneMode = false;
     private boolean mLastAirplaneMode = true;
-
-    private boolean mHideSignal;
 
     // our ui
     Context mContext;
@@ -243,9 +240,6 @@ public class NetworkController extends BroadcastReceiver {
 
         // yuck
         mBatteryStats = BatteryStatsService.getService();
-
-        SettingsObserver settingsObserver = new SettingsObserver(new Handler());
-        settingsObserver.observe();
     }
 
     public boolean hasMobileDataFeature() {
@@ -488,13 +482,13 @@ public class NetworkController extends BroadcastReceiver {
     private final void updateTelephonySignalStrength() {
         if (!hasService()) {
             if (CHATTY) Slog.d(TAG, "updateTelephonySignalStrength: !hasService()");
-            mPhoneSignalIconId = (mHideSignal ? 0 : R.drawable.stat_sys_signal_null);
-            mDataSignalIconId = (mHideSignal ? 0 : R.drawable.stat_sys_signal_null);
+            mPhoneSignalIconId = R.drawable.stat_sys_signal_null;
+            mDataSignalIconId = R.drawable.stat_sys_signal_null;
         } else {
             if (mSignalStrength == null) {
                 if (CHATTY) Slog.d(TAG, "updateTelephonySignalStrength: mSignalStrength == null");
-                mPhoneSignalIconId = (mHideSignal ? 0 : R.drawable.stat_sys_signal_null);
-                mDataSignalIconId = (mHideSignal ? 0 : R.drawable.stat_sys_signal_null);
+                mPhoneSignalIconId = R.drawable.stat_sys_signal_null;
+                mDataSignalIconId = R.drawable.stat_sys_signal_null;
                 mContentDescriptionPhoneSignal = mContext.getString(
                         AccessibilityContentDescriptions.PHONE_SIGNAL_STRENGTH[0]);
             } else {
@@ -523,10 +517,10 @@ public class NetworkController extends BroadcastReceiver {
                         iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH[mInetCondition];
                     }
                 }
-                mPhoneSignalIconId = (mHideSignal ? 0 : iconList[iconLevel]);
+                mPhoneSignalIconId = iconList[iconLevel];
                 mContentDescriptionPhoneSignal = mContext.getString(
                         AccessibilityContentDescriptions.PHONE_SIGNAL_STRENGTH[iconLevel]);
-                mDataSignalIconId = (mHideSignal ? 0 : TelephonyIcons.DATA_SIGNAL_STRENGTH[mInetCondition][iconLevel]);
+                mDataSignalIconId = TelephonyIcons.DATA_SIGNAL_STRENGTH[mInetCondition][iconLevel];
             }
         }
     }
@@ -944,8 +938,6 @@ public class NetworkController extends BroadcastReceiver {
         int combinedSignalIconId = 0;
         int combinedActivityIconId = 0;
         String combinedLabel = "";
-        // Note: the real purpose of "wifiLabel" is to display the connectivity status of
-        // everything (wifi, bluetooth, ethernet) except mobile
         String wifiLabel = "";
         String mobileLabel = "";
         int N;
@@ -1002,6 +994,8 @@ public class NetworkController extends BroadcastReceiver {
                 combinedActivityIconId = mMobileActivityIconId;
                 combinedSignalIconId = mDataSignalIconId; // set by updateDataIcon()
                 mContentDescriptionCombinedSignal = mContentDescriptionDataType;
+            } else {
+                mMobileActivityIconId = 0;
             }
         }
 
@@ -1100,7 +1094,6 @@ public class NetworkController extends BroadcastReceiver {
                 mDataTypeIconId = R.drawable.stat_sys_data_connected_roam;
             }
         }
-
         if (customLabel != null && customLabel.length() > 0) {
             combinedLabel = customLabel;
             mobileLabel = customLabel;
@@ -1429,31 +1422,6 @@ public class NetworkController extends BroadcastReceiver {
         } else {
             return "(null)";
         }
-    }
-
-    class SettingsObserver extends ContentObserver {
-        SettingsObserver(Handler handler) {
-            super(handler);
-        }
-
-        void observe() {
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.STATUSBAR_HIDE_SIGNAL_BARS), false,
-                    this);
-            updateSettings();
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            updateSettings();
-        }
-    }
-
-    protected void updateSettings() {
-        mHideSignal = (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.STATUSBAR_HIDE_SIGNAL_BARS, 0) == 1);
-        updateTelephonySignalStrength();
     }
 
 }

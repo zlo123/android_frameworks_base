@@ -30,9 +30,9 @@ import android.provider.Settings;
 import android.view.View;
 import android.content.Intent;
 
-public class GpsToggle extends Toggle {
+public class GPSToggle extends Toggle {
 
-    public GpsToggle(Context context) {
+    public GPSToggle(Context context) {
         super(context);
 
         Cursor settingsCursor = mContext.getContentResolver().query(Settings.Secure.CONTENT_URI,
@@ -72,10 +72,11 @@ public class GpsToggle extends Toggle {
         boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(
                 res, LocationManager.GPS_PROVIDER);
         mToggle.setChecked(gpsEnabled);
-        if (mToggle.isChecked())
+        if (mToggle.isChecked()) {
             setIcon(R.drawable.toggle_gps);
-        else
+        } else {
             setIcon(R.drawable.toggle_gps_off);
+        }
         return mToggle.isChecked();
     }
 
@@ -86,5 +87,4 @@ public class GpsToggle extends Toggle {
         mContext.startActivity(intent);
         return true;
     }
-
 }

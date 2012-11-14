@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.systemui.statusbar;
+package com.android.systemui.statusbar.toggles;
 
-import android.app.StatusBarManager;
-import android.content.ContentResolver;
 import android.content.Context;
+import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.ContentObserver;
-import android.os.RemoteException;
-import android.os.ServiceManager;
-import android.os.Handler;
 import android.provider.Settings;
-import android.util.Slog;
+import android.os.Handler;
 
-import com.android.systemui.statusbar.policy.Prefs;
+import com.android.systemui.R;
 
-public class DoNotDisturb {
-    private Context mContext;
-    private StatusBarManager mStatusBar;
-    private boolean mDoNotDisturb;
+public class DoNotDisturbToggle extends Toggle {
+
+    Context mContext;
+    boolean mDoNotDisturb;
 
     class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
@@ -46,34 +43,48 @@ public class DoNotDisturb {
 
         @Override
         public void onChange(boolean selfChange) {
-            final boolean value = Settings.System.getInt(
-                    mContext.getContentResolver(),
-                    Settings.System.STATUS_BAR_DONOTDISTURB, 0) == 1;
-
-            if (value != mDoNotDisturb) {
-                mDoNotDisturb = value;
-                updateDisableRecord();
-            }
+            mDoNotDisturb = isDoNotDisturb();
+            updateState();
         }
     }
 
-
-    public DoNotDisturb(Context context) {
+    public DoNotDisturbToggle(Context context) {
+        super(context);
         mContext = context;
-        mStatusBar = (StatusBarManager)context.getSystemService(Context.STATUS_BAR_SERVICE);
-        
+        setLabel(R.string.toggle_donotdisturb);
+        mDoNotDisturb = isDoNotDisturb();
+
         SettingsObserver obs = new SettingsObserver(new Handler());
         obs.observe();
 
-        mDoNotDisturb = Settings.System.getInt(
-                mContext.getContentResolver(),
-                Settings.System.STATUS_BAR_DONOTDISTURB, 0) == 1;
-        updateDisableRecord();
+        updateState();
     }
 
-    private void updateDisableRecord() {
-        final int disabled = StatusBarManager.DISABLE_NOTIFICATION_TICKER;
-        mStatusBar.disable(mDoNotDisturb ? disabled : 0);
+    private boolean isDoNotDisturb() {
+        return Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_DONOTDISTURB, 0) == 1;
+    }
+
+    @Override
+    protected void onCheckChanged(boolean isChecked) {
+        Settings.System.putInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_DONOTDISTURB, isChecked ? 1 : 0);
+        updateState();
+    }
+
+    @Override
+    protected boolean onLongPress() {
+        return true;
+    }
+
+    @Override
+    protected boolean updateInternalToggleState() {
+        mToggle.setChecked(mDoNotDisturb);
+        if (mToggle.isChecked()) {
+            setIcon(R.drawable.toggle_donotdisturb);
+        } else {
+            setIcon(R.drawable.toggle_donotdisturb_off);
+        }
+        return mToggle.isChecked();
     }
 }
-

@@ -24,11 +24,11 @@ import android.net.ConnectivityManager;
 
 import com.android.systemui.R;
 
-public class NetworkToggle extends Toggle {
+public class DataToggle extends Toggle {
 
     boolean mDataEnabled;
 
-    public NetworkToggle(Context context) {
+    public DataToggle(Context context) {
         super(context);
         setLabel(R.string.toggle_data);
         mDataEnabled = isMobileDataEnabled();

@@ -127,9 +127,9 @@ public class WifiAPToggle extends Toggle {
                 break;
         }
         if (mToggle.isChecked()) {
-            setIcon(R.drawable.toggle_wifi_ap);
+            setIcon(R.drawable.toggle_wifiap);
         } else {
-            setIcon(R.drawable.toggle_wifi_ap_off);
+            setIcon(R.drawable.toggle_wifiap_off);
         }
         return mToggle.isChecked();
     }
@@ -149,5 +149,4 @@ public class WifiAPToggle extends Toggle {
         mContext.startActivity(intent);
         return true;
     }
-
 }

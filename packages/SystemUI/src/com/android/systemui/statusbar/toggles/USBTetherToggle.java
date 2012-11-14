@@ -38,10 +38,9 @@ public class USBTetherToggle extends Toggle {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         mUsbRegexs = cm.getTetherableUsbRegexs();
-        setLabel(R.string.toggle_tether);
+        setLabel(R.string.toggle_usbtether);
 
         mTetherChangeReceiver = new TetherChangeReceiver();
-
         IntentFilter filter = new IntentFilter(ConnectivityManager.ACTION_TETHER_STATE_CHANGED);
         Intent intent = context.registerReceiver(mTetherChangeReceiver, filter);
 
@@ -65,7 +64,6 @@ public class USBTetherToggle extends Toggle {
             mToggle.setChecked(false);
             return;
         }
-
     }
 
     private void updateUsbState(String[] available, String[] tethered,
@@ -99,27 +97,18 @@ public class USBTetherToggle extends Toggle {
         }
 
         if (usbTethered) {
-            // mToggle.setSummary(R.string.usb_tethering_active_subtext);
             mToggle.setEnabled(true);
             mToggle.setChecked(true);
         } else if (usbAvailable) {
-            if (usbError == ConnectivityManager.TETHER_ERROR_NO_ERROR) {
-                // mToggle.setSummary(R.string.usb_tethering_available_subtext);
-            } else {
-                // mToggle.setSummary(R.string.usb_tethering_errored_subtext);
-            }
             mToggle.setEnabled(true);
             mToggle.setChecked(false);
         } else if (usbErrored) {
-            // mToggle.setSummary(R.string.usb_tethering_errored_subtext);
             mToggle.setEnabled(false);
             mToggle.setChecked(false);
         } else if (mMassStorageActive) {
-            // mToggle.setSummary(R.string.usb_tethering_storage_active_subtext);
             mToggle.setEnabled(false);
             mToggle.setChecked(false);
         } else {
-            // mToggle.setSummary(R.string.usb_tethering_unavailable_subtext);
             mToggle.setEnabled(false);
             mToggle.setChecked(false);
         }
@@ -142,17 +131,16 @@ public class USBTetherToggle extends Toggle {
         updateUsbState(available, tethered, errored);
 
         if (mToggle.isChecked()) {
-            setIcon(R.drawable.toggle_tether);
+            setIcon(R.drawable.toggle_usbtether);
         } else {
-            setIcon(R.drawable.toggle_tether_off);
+            setIcon(R.drawable.toggle_usbtether_off);
         }
         return mToggle.isChecked();
     }
 
     @Override
     protected boolean onLongPress() {
-        Intent intent = new Intent(
-                android.provider.Settings.ACTION_WIRELESS_SETTINGS);
+        Intent intent = new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
         return true;

@@ -33,6 +33,7 @@ public class TabletStatusBarView extends FrameLayout {
     private Handler mHandler;
 
     private final int MAX_PANELS = 5;
+    private static final int NAVBAR_DEFAULT_COLOR = 0xFF000000;
     private final View[] mIgnoreChildren = new View[MAX_PANELS];
     private final View[] mPanels = new View[MAX_PANELS];
     private final int[] mPos = new int[2];
@@ -68,7 +69,6 @@ public class TabletStatusBarView extends FrameLayout {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-
         updateColor();
     }
 
@@ -139,8 +139,7 @@ public class TabletStatusBarView extends FrameLayout {
 
     private void updateColor() {
         int color = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.SYSTEMUI_NAVBAR_COLOR,
-                Settings.System.SYSTEMUI_NAVBAR_COLOR_DEF);
+                Settings.System.SYSTEMUI_NAVBAR_COLOR, NAVBAR_DEFAULT_COLOR);
         float alpha = Color.alpha(color);
         this.setBackground(new ColorDrawable(color));
         this.setAlpha(alpha);

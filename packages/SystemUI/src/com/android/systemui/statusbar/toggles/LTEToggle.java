@@ -28,11 +28,11 @@ import android.telephony.TelephonyManager;
 import com.android.internal.telephony.Phone;
 import com.android.systemui.R;
 
-public class LteToggle extends Toggle {
+public class LTEToggle extends Toggle {
 
     private int mNetworkMode = -1;
 
-    public LteToggle(Context c) {
+    public LTEToggle(Context c) {
         super(c);
 
         SettingsObserver obs = new SettingsObserver(new Handler());
@@ -67,7 +67,6 @@ public class LteToggle extends Toggle {
                     mContext.getContentResolver(),
                     Settings.Secure.PREFERRED_NETWORK_MODE,
                     Phone.PREFERRED_NT_MODE);
-
             updateState();
         }
     }
@@ -108,11 +107,9 @@ public class LteToggle extends Toggle {
 
     @Override
     protected boolean onLongPress() {
-        Intent intent = new Intent(
-                android.provider.Settings.ACTION_WIRELESS_SETTINGS);
+        Intent intent = new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
         return true;
     }
 }
-

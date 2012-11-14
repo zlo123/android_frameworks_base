@@ -27,9 +27,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 
-/**
- * TODO: Listen for changes to the setting.
- */
 public class WifiToggle extends Toggle {
 
     private boolean mIsWifiOn;
@@ -41,13 +38,11 @@ public class WifiToggle extends Toggle {
         IntentFilter wifiFilter = new IntentFilter(
                 WifiManager.WIFI_STATE_CHANGED_ACTION);
         mContext.registerReceiver(mBroadcastReceiver, wifiFilter);
-
         setLabel(R.string.toggle_wifi);
         updateState();
     }
 
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             if (!WifiManager.WIFI_STATE_CHANGED_ACTION.equals(intent
@@ -56,7 +51,6 @@ public class WifiToggle extends Toggle {
             }
             mWifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, -1);
             updateState();
-
         }
     };
 
@@ -82,7 +76,6 @@ public class WifiToggle extends Toggle {
             Log.d("WifiButton", "No wifiManager.");
             return;
         }
-
         AsyncTask.execute(new Runnable() {
             public void run() {
                 int wifiApState = wifiManager.getWifiApState();
@@ -90,7 +83,6 @@ public class WifiToggle extends Toggle {
                         && ((wifiApState == WifiManager.WIFI_AP_STATE_ENABLING) || (wifiApState == WifiManager.WIFI_AP_STATE_ENABLED))) {
                     wifiManager.setWifiApEnabled(null, false);
                 }
-
                 wifiManager.setWifiEnabled(desiredState);
                 return;
             }
@@ -148,11 +140,9 @@ public class WifiToggle extends Toggle {
 
     @Override
     protected boolean onLongPress() {
-        Intent intent = new Intent(
-                android.provider.Settings.ACTION_WIFI_SETTINGS);
+        Intent intent = new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
         return true;
     }
-
 }

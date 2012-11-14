@@ -28,16 +28,13 @@ import android.view.IWindowManager;
 
 import com.android.systemui.R;
 
-/**
- * TODO: Listen for changes to the setting.
- */
-public class AutoRotateToggle extends Toggle {
+public class RotationToggle extends Toggle {
 
     boolean mAutoRotate;
 
-    public AutoRotateToggle(Context context) {
+    public RotationToggle(Context context) {
         super(context);
-        setLabel(R.string.toggle_rotate);
+        setLabel(R.string.toggle_rotation);
         mAutoRotate = getAutoRotation();
         updateState();
     }
@@ -62,7 +59,7 @@ public class AutoRotateToggle extends Toggle {
                         wm.freezeRotation(-1);
                     }
                 } catch (RemoteException exc) {
-                    Log.w(TAG, "Unable to save auto-rotate setting");
+                    Log.w(TAG, "Unable to save rotate setting");
                 }
             }
         });
@@ -77,17 +74,17 @@ public class AutoRotateToggle extends Toggle {
     @Override
     protected boolean updateInternalToggleState() {
         mToggle.setChecked(mAutoRotate);
-        if (mToggle.isChecked())
-            setIcon(R.drawable.toggle_rotate);
-        else
-            setIcon(R.drawable.toggle_rotate_off);
+        if (mToggle.isChecked()) {
+            setIcon(R.drawable.toggle_rotation);
+        } else {
+            setIcon(R.drawable.toggle_rotation_off);
+        }
         return mToggle.isChecked();
     }
 
     @Override
     protected boolean onLongPress() {
-        Intent intent = new Intent(
-                android.provider.Settings.ACTION_DISPLAY_SETTINGS);
+        Intent intent = new Intent(android.provider.Settings.ACTION_DISPLAY_SETTINGS);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
         return true;

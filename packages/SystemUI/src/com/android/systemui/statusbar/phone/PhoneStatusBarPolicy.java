@@ -72,8 +72,6 @@ public class PhoneStatusBarPolicy {
 
     // storage
     private StorageManager mStorageManager;
-
-
     // Assume it's all good unless we hear otherwise.  We don't always seem
     // to get broadcasts that it *is* there.
     IccCard.State mSimState = IccCard.State.READY;
@@ -192,11 +190,9 @@ public class PhoneStatusBarPolicy {
 
     private final void updateAlarm(Intent intent) {
         boolean alarmSet = intent.getBooleanExtra("alarmSet", false);
-
         if(alarmSet && Settings.System.getInt(mContext.getContentResolver(),
             Settings.System.STATUSBAR_SHOW_ALARM, 1) == 0)
             alarmSet = false;
-
         mService.setIconVisibility("alarm_clock", alarmSet);
     }
 

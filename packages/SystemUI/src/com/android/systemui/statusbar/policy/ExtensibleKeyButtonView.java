@@ -1,13 +1,9 @@
 package com.android.systemui.statusbar.policy;
 
 import java.net.URISyntaxException;
-import java.util.List;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.ActivityManager.RunningAppProcessInfo;
-import android.app.ActivityManagerNative;
-import android.app.IActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -19,19 +15,16 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.HapticFeedbackConstants;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-
 import android.widget.Toast;
 
 import com.android.internal.statusbar.IStatusBarService;
@@ -143,43 +136,17 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
 
     Runnable mKillTask = new Runnable() {
         public void run() {
-            try {
-                final Intent intent = new Intent(Intent.ACTION_MAIN);
-                String defaultHomePackage = "com.android.launcher";
-                intent.addCategory(Intent.CATEGORY_HOME);
-                final ResolveInfo res = mContext.getPackageManager().resolveActivity(intent, 0);
-                if (res.activityInfo != null && !res.activityInfo.packageName.equals("android")) {
-                    defaultHomePackage = res.activityInfo.packageName;
-                }
-                boolean targetKilled = false;
-                IActivityManager am = ActivityManagerNative.getDefault();
-                List<RunningAppProcessInfo> apps = am.getRunningAppProcesses();
-                for (RunningAppProcessInfo appInfo : apps) {
-                    int uid = appInfo.uid;
-                    // Make sure it's a foreground user application (not system,
-                    // root, phone, etc.)
-                    if (uid >= Process.FIRST_APPLICATION_UID && uid <= Process.LAST_APPLICATION_UID
-                            && appInfo.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                        if (appInfo.pkgList != null && (appInfo.pkgList.length > 0)) {
-                            for (String pkg : appInfo.pkgList) {
-                                if (!pkg.equals("com.android.systemui") && !pkg.equals(defaultHomePackage)) {
-                                    am.forceStopPackage(pkg);
-                                    targetKilled = true;
-                                    break;
-                                }
-                            }
-                        } else {
-                            Process.killProcess(appInfo.pid);
-                            targetKilled = true;
-                        }
-                    }
-                    if (targetKilled) {
-                        Toast.makeText(mContext, R.string.app_killed_message, Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                }
-            } catch (RemoteException remoteException) {
-                // Do nothing; just let it go.
+            final Intent intent = new Intent(Intent.ACTION_MAIN);
+            String defaultHomePackage = "com.android.launcher";
+            intent.addCategory(Intent.CATEGORY_HOME);
+            final ResolveInfo res = mContext.getPackageManager().resolveActivity(intent, 0);
+            if (res.activityInfo != null && !res.activityInfo.packageName.equals("android")) {
+                defaultHomePackage = res.activityInfo.packageName;
+            }
+            String packageName = mActivityManager.getRunningTasks(1).get(0).topActivity.getPackageName();
+            if (!defaultHomePackage.equals(packageName)) {
+                    mActivityManager.forceStopPackage(packageName);
+                    Toast.makeText(mContext, R.string.app_killed_message, Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -202,14 +169,14 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
                 }
                 return;
 
-            } else if (mClickAction.equals(ACTION_NOTIFICATIONS)) {
+         /*   } else if (mClickAction.equals(ACTION_NOTIFICATIONS)) {
                 try {
                     mBarService.toggleNotificationShade();
                 } catch (RemoteException e) {
                     // A RemoteException is like a cold
                     // Let's hope we don't catch one!
                 }
-                return;
+                return; */
 
                 } else if (mClickAction.equals(ACTION_IME)) {
 
@@ -293,12 +260,12 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
                 }
                 return true;
             } else if (mClickAction.equals(ACTION_NOTIFICATIONS)) {
-                try {
+             /*   try {
                     mBarService.toggleNotificationShade();
                 } catch (RemoteException e) {
                     // A RemoteException is like a cold
                     // Let's hope we don't catch one!
-                }
+                }  */
                 return true;
                 } else {  // we must have a custom uri
        	                try {
@@ -402,7 +369,6 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
     private Handler H = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
-
             }
         }
     };

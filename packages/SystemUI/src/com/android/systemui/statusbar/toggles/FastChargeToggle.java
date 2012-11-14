@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.android.systemui.statusbar.toggles;
 
 import java.io.BufferedReader;
@@ -16,15 +32,15 @@ import android.util.Log;
 
 import com.android.systemui.R;
 
-public class FChargeToggle extends Toggle {
+public class FastChargeToggle extends Toggle {
 
     public static final String FAST_CHARGE_DIR = "/sys/kernel/fast_charge";
     public static final String FAST_CHARGE_FILE = "force_fast_charge";
 
-    public FChargeToggle(Context context) {
+    public FastChargeToggle(Context context) {
         super(context);
 
-        setLabel(R.string.toggle_fcharge);
+        setLabel(R.string.toggle_fastcharge);
         IntentFilter f = new IntentFilter();
         f.addAction("com.android.settings.FCHARGE_CHANGED");
         context.registerReceiver(mIntentReceiver, f);
@@ -34,10 +50,11 @@ public class FChargeToggle extends Toggle {
     @Override
     protected boolean updateInternalToggleState() {
         mToggle.setChecked(isFastChargeOn());
-        if (mToggle.isChecked())
-            setIcon(R.drawable.toggle_fcharge);
-        else
-            setIcon(R.drawable.toggle_fcharge_off);
+        if (mToggle.isChecked()) {
+            setIcon(R.drawable.toggle_fastcharge);
+        } else {
+            setIcon(R.drawable.toggle_fastcharge_off);
+        }
         return mToggle.isChecked();
     }
 
@@ -59,7 +76,7 @@ public class FChargeToggle extends Toggle {
             BufferedReader breader = new BufferedReader(reader);
             return (breader.readLine().equals("1"));
         } catch (IOException e) {
-            Log.e("FChargeToggle", "Couldn't read fast_charge file");
+            Log.e("FastChargeToggle", "Couldn't read fast_charge file");
             return false;
         }
     }
@@ -72,9 +89,8 @@ public class FChargeToggle extends Toggle {
             bwriter.write(on ? "1" : "0");
             bwriter.close();
         } catch (IOException e) {
-            Log.e("FChargeToggle", "Couldn't write fast_charge file");
+            Log.e("FastChargeToggle", "Couldn't write fast_charge file");
         }
-
     }
 
     private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {

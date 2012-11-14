@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright 2011 Colin McDonough
+ *
+ * Modified for AOKP by Mike Wilson - Zaphod-Beeblebrox
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +18,17 @@
 
 package com.android.systemui;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
+import android.os.Bundle;
+import android.app.Activity;
 
-import android.content.Context;
-import android.content.res.Configuration;
+public class LockscreenUnlock extends Activity {
 
-public abstract class SystemUI {
-    public Context mContext;
+    private static final String TAG = "LockscreenUnlock";
 
-    public abstract void start();
-
-    
-    protected void onConfigurationChanged(Configuration newConfig) {
-    }
-
-    public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
+    /** This is just a placeholder for nulocking the lockscreen*/
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        finish();
     }
 }
