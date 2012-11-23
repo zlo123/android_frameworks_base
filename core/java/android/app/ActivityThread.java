@@ -4105,7 +4105,6 @@ public final class ActivityThread {
         //    VMRuntime.getRuntime().setTargetHeapConcurrentStart(4*1024*1024);
         //}
 
-
         android.ddm.DdmHandleAppName.setAppName(data.processName);
 
         if (data.persistent) {

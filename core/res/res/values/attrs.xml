@@ -4978,7 +4978,6 @@
              dependents will be disabled when this is unchecked, so the value of this preference is false. -->
         <attr name="disableDependentsState" format="boolean" />
     </declare-styleable>
-
     <!-- Base attributes available to ColorPickerPreference. -->
     <declare-styleable name="ColorPickerPreference">
     </declare-styleable>

@@ -106,7 +106,6 @@ public class Scroller  {
 
     private static float sViscousFluidScale;
     private static float sViscousFluidNormalize;
-    
     // Reads file into variable
     private int readFileIntoInt(String fileToBeRead) {
       try {

@@ -102,7 +102,6 @@ public class KeyguardViewManager implements KeyguardWindowController {
 
         SettingsObserver observer = new SettingsObserver(new Handler());
         observer.observe();
-
         mUpdateMonitor = updateMonitor;
     }
 
@@ -139,14 +138,12 @@ public class KeyguardViewManager implements KeyguardWindowController {
         boolean enableScreenRotation =
                 SystemProperties.getBoolean("lockscreen.rot_override",false)
                 || (enableLockScreenRotation && enableAccelerometerRotation);
-
         if (mKeyguardHost == null) {
             if (DEBUG) Log.d(TAG, "keyguard host is null, creating it...");
 
             mKeyguardHost = new KeyguardViewHost(mContext, mCallback);
 
             setKeyguardParams();
-
             mViewManager.addView(mKeyguardHost, mWindowLayoutParams);
         }
 
